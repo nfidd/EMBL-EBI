@@ -7,11 +7,11 @@ order: 0
 
 ### Aim of the course
 
-In this course we will address how can we use data typically collected in an outbreak, or in routine surveillance, to answer questions like
+In this focused half-day course we will address how we can use data typically collected in an outbreak, or in routine surveillance, to answer questions like
 
--   What is the number of cases now (*nowcasting*)
 -   Are infections rising/falling and by how much (*$R_t$ estimation*)
--   What does this mean for the near future (*forecasting*)
+-   What is the number of cases now (*nowcasting*)
+-   How can we estimate both when reporting delays are unknown (*joint nowcasting*)
 
 To answer these questions, we need to understand the epidemiological processes that create the kinds of data that we typically have available for outbreak analysis and infectious disease surveillance.
 
@@ -62,14 +62,12 @@ For those attending the in-person version the course also:
 
 ### Timeline for the course
 
-The course was created to be taught in-person for 2.5 days but of course if you are studying this on your own using the web site you can go through the material at your own pace and in your own time.
-Broadly, the intended timeline is:
+This EMBL-EBI course is designed as a focused half-day workshop covering the essential methods for real-time infectious disease surveillance.
+The timeline is:
 
--   delay distributions and how to estimate them (day 1)
--   $R_t$ estimation and the generation interval (day 1)
--   nowcasting (day 2)
--   forecasting and evaluation (day 2)
--   ensemble methods and applications (day 3)
+-   $R_t$ estimation and the renewal equation (session 1)
+-   nowcasting concepts (session 2) 
+-   joint nowcasting with unknown reporting delays (session 3)
 
 Let's get started!
 
@@ -77,6 +75,6 @@ Let's get started!
 
 -   [Introduction to the course and the instructors](slides/introduction-to-the-course-and-the-instructors)
 
--   If you haven't already, start with [getting set up for the course](../getting-set-up)
+-   If you haven't already, start with [getting set up for the course](../getting-started)
 
--   Once you're all set up, let's start with the first session on [delay distributions](delay-distributions).
+-   Once you're all set up, let's start with the first session on [$R_t$ estimation and the renewal equation](R-estimation-and-the-renewal-equation).
