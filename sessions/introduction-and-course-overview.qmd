@@ -28,9 +28,8 @@ There are two types of processes happening:
 Both of these processes involve time delays which makes analysing data in real time especially tricky.
 :::
 
-In this course, we first focus on making sense of the delays and biases in the data we are able to access in real time as part of infectious disease surveillance.
-We'll combine this with the process of infectious disease transmission, with the reproduction number as a key component.
-With that, we can start to interpret the present (nowcasting) and predict the future (forecasting).
+In this course, we focus on understanding the transmission process through the reproduction number as a key component.
+We'll then explore how to interpret the present state of an outbreak (nowcasting) when we have incomplete surveillance data due to reporting delays.
 
 ### Why this course?
 
@@ -45,7 +44,7 @@ Throughout the course we will
 1.  use models to simulate data sets in **R** (thus introducing the *generative model*)
 2.  apply the generative model to the simulated data in the probabilistic programming language **stan**, to
     -   learn about the system (conduct inference)
-    -   **make predictions** (nowcasting/forecasting)
+    -   **make nowcasts** (estimating current state)
 
 Each session in the course:
 
@@ -72,8 +71,6 @@ The timeline is:
 Let's get started!
 
 -   Have a more detailed look at the [learning objectives](../reference/learning_objectives)
-
--   [Introduction to the course and the instructors](slides/introduction-to-the-course-and-the-instructors)
 
 -   If you haven't already, start with [getting set up for the course](../getting-started)
 

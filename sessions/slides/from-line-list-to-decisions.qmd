@@ -1,6 +1,6 @@
 ---
 title: "From an epidemiological line list to informing decisions in real-time"
-author: "Nowcasting and forecasting of infectious disease dynamics"
+author: "Rt estimation and nowcasting for infectious disease dynamics"
 engine: knitr
 format:
   revealjs:
@@ -18,7 +18,7 @@ Hans Rosling, Liberia, 2014
 
 - what **is** the number of cases now?
 - is it rising/falling and by how much?
-- what does this mean for the near future?
+- how can we estimate both in real time?
 
 ### Data usually looks like this
 
@@ -58,7 +58,7 @@ How can we use data typically collected for other purposes to answer questions l
 
 - what **is** the number of cases now? (*nowcasting*)
 - is it rising/falling and by how much? (*$R_t$ estimation*)
-- what does this mean for the near future (*forecasting*)
+- how can we handle unknown reporting delays? (*joint nowcasting*)
 
 in real time.
 
@@ -90,34 +90,33 @@ Throughout the course we will
 
 2. apply generative models to simulated data in **Stan** to
    - learn about the system (conduct inference)
-   - **make predictions** (nowcasting/forecasting)
+   - **make nowcasts** (estimate current state)
 
 ### Approach
 
 Throughout the course we will
 
-3. shift, in the second half, to demonstrations of **data-driven forecasting** and real-world applications
+3. demonstrate **joint nowcasting** methods for handling unknown reporting delays
 
 ### Approach
 
 Throughout the course we will
 
-4. work through all steps of a forecasting pipeline of data exploration, model and experimental design, forecast evaluation and combination.
+4. build understanding through hands-on exercises with simulated and real surveillance data.
 
 ### Timeline
 
 ::: {.incremental}
-- delay distributions and how to estimate them (day 1)
-- $R_t$ estimation and nowcasting (day 2)
-- forecasting, evaluation, and ensemble methods (day 2)
-- forecasting hubs, applications, and linking nowcasting and forecasting (day 3)
+- $R_t$ estimation using the renewal equation (session 1)
+- nowcasting concepts and methods (session 2)
+- joint nowcasting with unknown reporting delays (session 3)
 :::
 
 #
 
 To start the course go to:
-[https://nfidd.github.io/sismid/](https://nfidd.github.io/sismid/)
-and get started on the first session (*Delay distributions*)
+[https://nfidd.github.io/EMBL-EBI/](https://nfidd.github.io/EMBL-EBI/)
+and get started on the first session (*Rt estimation*)
 
 #
 

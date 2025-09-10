@@ -5,8 +5,8 @@ project:
 
 website:
   title: "NFIDD EMBL-EBI"
-  site-url: https://nfidd.github.io/sismid/
-  repo-url: https://github.com/nfidd/sismid
+  site-url: https://nfidd.github.io/EMBL-EBI/
+  repo-url: https://github.com/nfidd/EMBL-EBI
   repo-actions: [source, issue]
   description: "Nowcasting and forecasting infectious disease dynamics - EMBL-EBI"
   body-footer: '<script data-goatcounter="https://nfidd.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>'
@@ -20,7 +20,7 @@ website:
       - authors.qmd
     right:
       - icon: github
-        href: https://github.com/nfidd/sismid
+        href: https://github.com/nfidd/EMBL-EBI
   sidebar:
     - id: reference
       title: "Reference"

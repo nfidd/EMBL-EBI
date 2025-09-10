@@ -60,9 +60,9 @@ options(cmdstanr_print_line_numbers = TRUE)
 
 In this session we introduce modelling the infection process itself, in addition to modelling observation processes.
 
-Recall that in the [session on convolutions](using-delay-distributions-to-model-the-data-generating-process-of-an-epidemic#estimating-a-time-series-of-infections) we tried to estimate the number of infections.
-In doing so we assumed that infections every day were independently identically distributed and determined only by the number of symptom onsets that they caused.
-In reality, however, we know that infections are not independent.
+When we observe surveillance data like symptom onsets or positive tests, we often want to understand the underlying infection process that generated these observations.
+A simple approach might be to assume that infections every day are independently and identically distributed, determined only by the observed data.
+However, in reality, we know that infections are not independent.
 Because infection is dependent on a pathogen being transmitted from one individual to another, we expect infections on any day to depend on existing infections, that is the number of individuals that became infectious in the recent past.
 We now express this relationship via the renewal equation, which links these recent infections to the number of new infections expected on any day via the reproduction number $R_t$.
 
@@ -83,13 +83,13 @@ I_t = R_t \sum_{i=1}^{g_\mathrm{max}} I_{t-i} g_i
 $$
 
 Here, $I_t$ is the number of infected individuals on day $t$, $R_t$ is the current value of the reproduction number and $g_i$ is the probability of a secondary infection occurring $i$ days after the infector became infected themselves, with a maximum $g_\mathrm{max}$.
-Remembering the [session on convolutions](using-delay-distributions-to-model-the-data-generating-process-of-an-epidemic#delay-distributions-and-convolutions) you will be able to identify that the renewal equation represents a convolution of the infection time series with itself, with the delay distribution given by $g_i$ and $R_t$ representing a scaling that is being applied.
+The renewal equation represents a convolution of the infection time series with itself, with the delay distribution given by $g_i$ and $R_t$ representing a scaling that is being applied. This convolution structure captures how past infections contribute to future infections through transmission.
 
 ::: callout-tip
 ## Discrete vs. continuous renewal equation
 
 The equation shown above represents the discrete version of the reproduction number.
-Similar to discussions in the [session on convolutions](using-delay-distributions-to-model-the-data-generating-process-of-an-epidemic#delay-distributions-and-convolutions) this can be interpreted as a discretised version of a continuous one where the sum is replaced by an integral and the generation time distribution is continuous.
+This discrete formulation can be interpreted as a discretised version of a continuous renewal equation where the sum is replaced by an integral and the generation time distribution is continuous.
 Note that in the discrete version we have started the sum at 1 and thus set $g_0=0$ which will make calculations easier.
 :::
 
@@ -122,7 +122,7 @@ renewal
 ## Take 2 minutes
 
 Try to understand the `renewal()` function above.
-Compare it to the `convolve_with_delay()` function from the [session on convolutions](using-delay-distributions-to-model-the-data-generating-process-of-an-epidemic#delay-distributions-and-convolutions).
+This follows the same mathematical convolution pattern where we're combining two time series - the infections and the generation time distribution.
 How are they similar?
 Can you explain the key differences between the two?
 Try calling the function with a few different probability distributions and parameters.
@@ -131,7 +131,7 @@ What kind of behaviours do you see depending on the values you put in?
 
 # Estimating $R_t$ from a time series of infections
 
-We now return to the time series of infections we used in the [session on convolutions](using-delay-distributions-to-model-the-data-generating-process-of-an-epidemic#delay-distributions-and-convolutions).
+Let's now work with a simulated time series of infections to demonstrate the renewal equation in practice.
 
 ```{r load_ts}
 inf_ts <- make_daily_infections(infection_times)
@@ -147,7 +147,7 @@ head(inf_ts)
 We use a renewal equation model in *stan* to estimate the effective reproduction number throughout the outbreak.
 We assume that the generation time is gamma-distributed with mean 4 and standard deviation 2, with a maximum of 2 weeks (14 days).
 From this we can calculate that the parameters of the distribution are shape 4 and rate 1.
-We can use the `censored_delay_pmf()` function defined in the [session on convolutions](using-delay-distributions-to-model-the-data-generating-process-of-an-epidemic#delay-distributions-and-convolutions) to use this continuous distribution with the discrete renewal equation.
+We can use the `censored_delay_pmf()` function to discretise this continuous distribution for use with the discrete renewal equation. This function handles the conversion from continuous to discrete probability distributions.
 
 To approximate the generation time PMF using random draws from the underlying continuous distribution use
 
@@ -258,7 +258,7 @@ Rt crosses 1 at the peak of the outbreak which is consistent with the true Rt tr
 
 Epidemiological data is rarely, perhaps never, available as a time series of infection events.
 Instead, we usually observe outcomes such as symptom onsets when individuals interact with the health system, e.g. by presenting to a hospital.
-In the [session on convolutions](using-delay-distributions-to-model-the-data-generating-process-of-an-epidemic#delay-distributions-and-convolutions) we simulated symptom onsets from a time series of infections by convolving with a delay and then sampling from a Poisson distribution: For this we used the `convolved_with_delay()` function.
+We can simulate observed data (like symptom onsets) from a time series of infections by convolving with a delay distribution and then sampling from a Poisson distribution. This captures both the delay process and observational noise.
 
 We then simulate observations again using:
 
@@ -279,7 +279,7 @@ r_inf_mod
 ## Take 2 minutes
 
 Familiarise yourself with the model above.
-Compare it to the model used earlier in this session, and the one used in the [session on convolutions](using-delay-distributions-to-model-the-data-generating-process-of-an-epidemic#estimating-a-time-series-of-infections).
+Compare it to the simpler model used earlier in this session where we assumed infections were independent.
 Does this model have more parameters?
 How do the assumptions about the infections time series differ between the models?
 :::
@@ -288,7 +288,7 @@ How do the assumptions about the infections time series differ between the model
 ## Solution
 
 The model has a similar number of parameters but the assumptions about the infections time series are different.
-The model used in the [session on convolutions](using-delay-distributions-to-model-the-data-generating-process-of-an-epidemic#estimating-a-time-series-of-infections) assumes that the number of infections each day is independent and identically distributed.
+A simpler modelling approach would assume that the number of infections each day is independent and identically distributed.
 In contrast, the model used here assumes that the number of infections each day is dependent on the number of infections on previous days due to the renewal equation.
 Now it is Rt that is assumed to be independent and identically distributed.
 :::
@@ -596,7 +596,7 @@ The model that fits directly to infections is the best fit for the data, but dep
 ::: callout-tip
 ## Take 2 minutes
 
-Compare the results across the models used in this session, and the one used in the [session on convolutions](using-delay-distributions-to-model-the-data-generating-process-of-an-epidemic).
+Compare the results across the different models used in this session.
 How do the models vary in the number of parameters that need to be estimated?
 How do the assumptions about the infections time series differ between the models?
 What do you notice about the level of uncertainty in the estimates of infections and $R_t$ over the course of the time series?

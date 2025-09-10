@@ -1,5 +1,5 @@
 Package: nfidd
-Title: Material to support course on nowcasting and forecasting of infectious
+Title: Material to support course on nowcasting and Rt estimation for infectious
     disease dynamics
 Version: 1.2.0.9000
 Authors@R: c(
@@ -10,11 +10,11 @@ Authors@R: c(
       email = "epiforecasts@gmail.com"
     )
   )
-Description: Resources to support a short course on nowcasting and forecasting
-    of infectious disease dynamics.
+Description: Resources to support a focused course on Rt estimation and nowcasting
+    methods for infectious disease surveillance.
 License: MIT + file LICENSE
-URL: https://github.com/nfidd/sismid
-BugReports: https://github.com/nfidd/sismid/issues
+URL: https://github.com/nfidd/EMBL-EBI
+BugReports: https://github.com/nfidd/EMBL-EBI/issues
 Depends:
     R (>= 4.2.0)
 Imports:
@@ -37,17 +37,9 @@ Suggests:
     rmarkdown,
     testthat (>= 3.0.0),
     roxyglobals,
-    hubUtils,
-    hubEnsembles,
-    hubEvals,
-    hubData,
-    hubVis,
     here
 Remotes:
-    stan-dev/cmdstanr,
-    hubverse-org/hubEvals,
-    hubverse-org/hubData,
-    hubverse-org/hubVis
+    stan-dev/cmdstanr
 Encoding: UTF-8
 Language: en-GB
 RoxygenNote: 7.3.2

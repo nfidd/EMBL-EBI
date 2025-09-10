@@ -6,37 +6,34 @@ comments: false
 
 # EMBL-EBI Course: Rt estimation and nowcasting
 
-**Tuesday - Half day**
+**Tuesday - Half day (09.15-12.30)**
 
-Tuesday: 09.00-09.15
+## Course introduction and overview
 
--   Course introduction and overview (15 mins)
+Tuesday: 09.15-09.30
+
+-   [Course overview and motivation](../sessions/introduction-and-course-overview): from line list to decisions (15 mins)
 
 ## Session 1: $R_t$ estimation and the renewal equation
 
-Tuesday: 09.15-10.00
+Tuesday: 09.30-10.30
 
 -   [Introduction](../sessions/slides/introduction-to-reproduction-number): the time-varying reproduction number (10 mins)
--   [Practice](../sessions/R-estimation-and-the-renewal-equation): using the renewal equation to estimate R (30 mins)
+-   [Practice](../sessions/R-estimation-and-the-renewal-equation): using the renewal equation to estimate R (45 mins)
 -   Wrap up (5 mins)
+
+**Break: 10.30-11.00**
 
 ## Session 2: Nowcasting concepts
 
-Tuesday: 10.00-10.30
+Tuesday: 11.00-11.45
 
 -   [Introduction](../sessions/slides/introduction-to-nowcasting): nowcasting as a right-truncation problem (10 mins)
--   [Practice](../sessions/nowcasting): simulating and basic nowcasting (20 mins)
+-   [Practice](../sessions/nowcasting): simulating and basic nowcasting (35 mins)
 
 ## Session 3: Nowcasting with an unknown reporting delay
 
-Tuesday: 11.00-12.00
+Tuesday: 11.45-12.30
 
 -   [Introduction](../sessions/slides/introduction-to-joint-estimation-of-nowcasting-and-reporting-delays): joint estimation of delays and nowcasts (10 mins)
--   [Practice](../sessions/joint-nowcasting):
-    -   joint estimation of delays and nowcasts (20 mins)
-    -   joint estimation of delays, nowcasts and reproduction numbers (20 mins)
--   Wrap up (10 mins)
-
-Tuesday: 12.00-12.30
-
--   Course wrap-up and discussion (30 mins)
+-   [Practice](../sessions/joint-nowcasting): joint estimation of delays and nowcasts (35 mins)

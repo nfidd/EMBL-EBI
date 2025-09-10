@@ -69,7 +69,7 @@ options(cmdstanr_warn_inits = FALSE)
 
 So far we have assumed that the delay distribution is known. 
 In practice, this is often not the case and we need to estimate it from the data.
-As we discussed in the [session on biases in delay distributions](sessions/biases-in-delay-distributions), this can be done using individual data and then passing this estimate to a simple nowcasting model.
+This can be done using individual data and then passing this estimate to a simple nowcasting model.
 However, this has the disadvantage that the nowcasting model does not take into account the uncertainty in the delay distribution or observation error of the primary events (and potentially some other issues we will cover in this session).
 
 In the [nowcasting concepts session](sessions/nowcasting) we also saw that getting the delay distribution wrong can lead to very poor nowcasts.
@@ -103,7 +103,7 @@ reporting_delay_pmf <- censored_delay_pmf(
 plot(reporting_delay_pmf)
 ```
 
-We can then simulate the data by day, onset day, and reporting day by applying the reporting delay distribution to the onsets (notice how this is nearly identical to the convolution we saw in the [convolutions session](sessions/using-delay-distributions-to-model-the-data-generating-process-of-an-epidemic) except that we are not applying the sum):
+We can then simulate the data by day, onset day, and reporting day by applying the reporting delay distribution to the onsets (notice how this is nearly identical to the convolution pattern we've seen before except that we are not applying the sum):
 
 ```{r simulate-reporting-triangle}
 reporting_triangle <- onset_df |>
@@ -468,7 +468,7 @@ This is because we have accounted for the truncation (otherwise it would be spur
 
 - The simple nowcast models we showed here assumed perfect knowledge of the delay distribution. 
 What happens when you instead use an estimate of the delay distribution from the data? 
-Try and do this using methods from [session on biases in delay distributions](sessions/biases-in-delay-distributions) and see how it affects the simple nowcast models.
+Try estimating the delay distribution from aggregated surveillance data and see how uncertainty in this estimate affects the simple nowcast models.
 - Despite being fairly involved, the joint nowcast model we used here is still quite simple and may struggle to capture more complex patterns in the data.
 
 ## Methods in practice
