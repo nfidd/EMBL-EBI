@@ -4,7 +4,7 @@ Title: Material to support course on nowcasting and forecasting of infectious
 Version: 1.2.0.9000
 Authors@R: c(
     person(
-      given = "NFIDD SISMID course contributors",
+      given = "NFIDD EMBL-EBI course contributors",
       family = "",
       role = c("cre", "aut"),
       email = "epiforecasts@gmail.com"

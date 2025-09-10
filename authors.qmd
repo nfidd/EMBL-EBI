@@ -14,6 +14,11 @@ The SISMID course was adapted by the **SISMID course contributors**:
 - [Thomas Robacker](https://github.com/trobacker)
 - [Nick Reich](https://github.com/nickreich)
 
+The EMBL-EBI course was adapted by the **EMBL-EBI course contributors**:
+
+- [Sam Abbott](https://github.com/seabbs)
+- [Joel Hellewell](https://github.com/jhellewell14)
+
 ## How to Cite
 
 If you use materials from this course in your work, please cite:
@@ -21,6 +26,8 @@ If you use materials from this course in your work, please cite:
 > NFIDD course contributors (2025). NFIDD: Nowcasting and Forecasting Infectious Disease Dynamics. Version [VERSION]. DOI: [PLACEHOLDER - Zenodo DOI will be added upon release]
 
 > SISMID course contributors (2025). NFIDD SISMID: Nowcasting and Forecasting Infectious Disease Dynamics - SISMID. Version [VERSION]. DOI: [PLACEHOLDER - Zenodo DOI will be added upon release]
+
+> EMBL-EBI course contributors (2025). NFIDD EMBL-EBI: Nowcasting and Forecasting Infectious Disease Dynamics - EMBL-EBI. Version [VERSION]. DOI: [PLACEHOLDER - Zenodo DOI will be added upon release]
 
 ### BibTeX Entry
 
@@ -43,6 +50,17 @@ If you use materials from this course in your work, please cite:
   version = {[VERSION]},
   doi = {[PLACEHOLDER - Zenodo DOI]},
   url = {https://nfidd.github.io/sismid/}
+}
+```
+
+```bibtex
+@misc{embldebi2025,
+  author = {{Sam Abbott, Joel Hellewell}},
+  title = {{NFIDD EMBL-EBI: Nowcasting and Forecasting Infectious Disease Dynamics - EMBL-EBI}},
+  year = {2025},
+  version = {[VERSION]},
+  doi = {[PLACEHOLDER - Zenodo DOI]},
+  url = {https://nfidd.github.io/embl-ebi/}
 }
 ```
 

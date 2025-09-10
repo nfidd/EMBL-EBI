@@ -4,11 +4,11 @@ project:
     - "*.qmd"
 
 website:
-  title: "NFIDD SISMID"
+  title: "NFIDD EMBL-EBI"
   site-url: https://nfidd.github.io/sismid/
   repo-url: https://github.com/nfidd/sismid
   repo-actions: [source, issue]
-  description: "Nowcasting and forecasting infectious disease dynamics - SISMID"
+  description: "Nowcasting and forecasting infectious disease dynamics - EMBL-EBI"
   body-footer: '<script data-goatcounter="https://nfidd.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>'
   open-graph: true
   favicon: nfidd-favicon.png
