@@ -1,0 +1,866 @@
+[
+  {
+    "objectID": "sessions/slides/introduction-to-reproduction-number.html#independent-infections-model",
+    "href": "sessions/slides/introduction-to-reproduction-number.html#independent-infections-model",
+    "title": "Introduction to the time-varying reproduction number",
+    "section": "Independent infections model",
+    "text": "Independent infections model\n\nfunctions {\n  #include \"functions/convolve_with_delay.stan\"\n}\n\ndata {\n  int n;            // number of time days\n  array[n] int obs; // observed onsets\n  int&lt;lower = 1&gt; ip_max; // max incubation period\n  // probability mass function of incubation period distribution (first index zero)\n  array[ip_max + 1] real ip_pmf;\n}\n\nparameters {\n  array[n] real&lt;lower = 0&gt; infections;\n}\n\ntransformed parameters {\n  array[n] real onsets = convolve_with_delay(infections, ip_pmf);\n}\n\nmodel {\n  // priors\n  infections ~ normal(0, 10) T[0, ];\n  obs ~ poisson(onsets);\n}\n\n\nPrior for infections at time \\(t\\) is independent from infections at all other time points. Is this reasonable?"
+  },
+  {
+    "objectID": "sessions/slides/introduction-to-reproduction-number.html#what-if-we-convolve-infections-with-infections",
+    "href": "sessions/slides/introduction-to-reproduction-number.html#what-if-we-convolve-infections-with-infections",
+    "title": "Introduction to the time-varying reproduction number",
+    "section": "What if we convolve infections with infections?",
+    "text": "What if we convolve infections with infections?\nWe can use the concept of a convolution to link infections over time:\n\nKey insight: infections → infections (via generation time)\nThis captures the fundamental transmission process in epidemics"
+  },
+  {
+    "objectID": "sessions/slides/introduction-to-reproduction-number.html#generation-time-infection-to-infection",
+    "href": "sessions/slides/introduction-to-reproduction-number.html#generation-time-infection-to-infection",
+    "title": "Introduction to the time-varying reproduction number",
+    "section": "Generation time: infection to infection",
+    "text": "Generation time: infection to infection\nHere rather than the time from infection (person A) to symptoms (person B, infected by A) we have the time from infection (person A) to infection (person B, infected by A).\nThis is known as the generation time distribution (\\(g(t)\\))."
+  },
+  {
+    "objectID": "sessions/slides/introduction-to-reproduction-number.html#generation-time-notation",
+    "href": "sessions/slides/introduction-to-reproduction-number.html#generation-time-notation",
+    "title": "Introduction to the time-varying reproduction number",
+    "section": "Generation time: notation",
+    "text": "Generation time: notation\nWe can write the convolution as:\n\\[\nI_t = \\mathrm{scaling} \\times \\sum_{t' &lt; t} I_t' g(t - t')\n\\]\nHowever, unlike the infection to symptoms case here we don’t assume that the two time series have the same magnitude so need to introduce a scaling.\n\nWhat is this scaling?"
+  },
+  {
+    "objectID": "sessions/slides/introduction-to-reproduction-number.html#the-renewal-equation-as-a-convolution",
+    "href": "sessions/slides/introduction-to-reproduction-number.html#the-renewal-equation-as-a-convolution",
+    "title": "Introduction to the time-varying reproduction number",
+    "section": "The renewal equation as a convolution",
+    "text": "The renewal equation as a convolution"
+  },
+  {
+    "objectID": "sessions/slides/introduction-to-reproduction-number.html#the-scaling-factor-reproduction-number",
+    "href": "sessions/slides/introduction-to-reproduction-number.html#the-scaling-factor-reproduction-number",
+    "title": "Introduction to the time-varying reproduction number",
+    "section": "The scaling factor: reproduction number",
+    "text": "The scaling factor: reproduction number\nLet’s assume we have \\(I_0\\) infections at time 0, and the scaling doesn’t change in time.\nHow many people will they go on to infect?\n\n\\[\nI = \\mathrm{scaling} \\times \\sum_{t=0}^\\infty I_0 g(t) = \\mathrm{scaling} * I_0\n\\]\nThe scaling can be interpreted as the reproduction number \\(R_0\\) (assuming a susceptible population)."
+  },
+  {
+    "objectID": "sessions/slides/introduction-to-reproduction-number.html#the-renewal-equation",
+    "href": "sessions/slides/introduction-to-reproduction-number.html#the-renewal-equation",
+    "title": "Introduction to the time-varying reproduction number",
+    "section": "The renewal equation",
+    "text": "The renewal equation\nIf \\(R_t\\) can change over time, it can be interpreted as the (“instantaneous”) reproduction number:\n\\[\nI_t = R_t \\times \\sum_{t' &lt; t} I_t' g(t - t')\n\\]\nWe can estimate \\(R_t\\) from a time series of infections using the renewal equation."
+  },
+  {
+    "objectID": "sessions/slides/introduction-to-reproduction-number.html#your-turn",
+    "href": "sessions/slides/introduction-to-reproduction-number.html#your-turn",
+    "title": "Introduction to the time-varying reproduction number",
+    "section": " Your Turn",
+    "text": "Your Turn\n\nSimulate infections using the renewal equation\nEstimate reproduction numbers using a time series of infections\nCombine with delay distributions to jointly infer infections and R from a time series of outcomes"
+  },
+  {
+    "objectID": "sessions/slides/introduction-to-joint-estimation-of-nowcasting-and-reporting-delays.html#your-turn",
+    "href": "sessions/slides/introduction-to-joint-estimation-of-nowcasting-and-reporting-delays.html#your-turn",
+    "title": "Introduction to joint estimation of nowcasting and reporting delays",
+    "section": " Your Turn",
+    "text": "Your Turn\n\nSimulate data with delayed reporting\nPerform a joint estimation of the delay and nowcast\nUnderstand the limitations of the data generating process\nPerform a joint estimation of the delay, nowcast, and reproduction number"
+  },
+  {
+    "objectID": "sessions/nowcasting.html",
+    "href": "sessions/nowcasting.html",
+    "title": "Nowcasting concepts",
+    "section": "",
+    "text": "So far we’ve explored the delays and biases of real-time infectious disease surveillance data, started to correct for these, and considered the underlying process that drives the evolution of epidemics (looking at the reproduction number and renewal equation). Next, we’ll focus on predicting new information about how infectious disease transmission is evolving in the present and future.\nWe know that we have incomplete information in the present because of delays in the observation process (reporting delays). The aim of nowcasting is to predict what an epidemiological time series will look like after all delayed reports are in, for which we need to account for the delays and biases we’ve already considered.\n\n\n\nIntroduction to nowcasting\n\n\n\n\nThis session aims to introduce the concept of nowcasting, and see how we can perform a nowcast if we know the underlying delay distribution.\n\n\n\n\n\n\nSetup\n\n\n\n\n\n\n\nThe source file of this session is located at sessions/nowcasting.qmd.\n\n\n\nIn this session we will use the nfidd package to load a data set of infection times and access stan models and helper functions, the dplyr and tidyr packages for data wrangling, ggplot2 library for plotting, and the tidybayes package for extracting results of the inference.\n\nlibrary(\"nfidd\")\nlibrary(\"dplyr\")\nlibrary(\"tidyr\")\nlibrary(\"ggplot2\")\nlibrary(\"tidybayes\")\n\n\n\n\n\n\n\nTip\n\n\n\nThe best way to interact with the material is via the Visual Editor of RStudio.\n\n\n\n\n\nWe set a random seed for reproducibility. Setting this ensures that you should get exactly the same results on your computer as we do. We also set an option that makes cmdstanr show line numbers when printing model code. This is not strictly necessary but will help us talk about the models.\n\nset.seed(123)\noptions(cmdstanr_print_line_numbers = TRUE)",
+    "crumbs": [
+      "Nowcasting concepts"
+    ]
+  },
+  {
+    "objectID": "sessions/nowcasting.html#slides",
+    "href": "sessions/nowcasting.html#slides",
+    "title": "Nowcasting concepts",
+    "section": "",
+    "text": "Introduction to nowcasting",
+    "crumbs": [
+      "Nowcasting concepts"
+    ]
+  },
+  {
+    "objectID": "sessions/nowcasting.html#objectives",
+    "href": "sessions/nowcasting.html#objectives",
+    "title": "Nowcasting concepts",
+    "section": "",
+    "text": "This session aims to introduce the concept of nowcasting, and see how we can perform a nowcast if we know the underlying delay distribution.\n\n\n\n\n\n\nSetup\n\n\n\n\n\n\n\nThe source file of this session is located at sessions/nowcasting.qmd.\n\n\n\nIn this session we will use the nfidd package to load a data set of infection times and access stan models and helper functions, the dplyr and tidyr packages for data wrangling, ggplot2 library for plotting, and the tidybayes package for extracting results of the inference.\n\nlibrary(\"nfidd\")\nlibrary(\"dplyr\")\nlibrary(\"tidyr\")\nlibrary(\"ggplot2\")\nlibrary(\"tidybayes\")\n\n\n\n\n\n\n\nTip\n\n\n\nThe best way to interact with the material is via the Visual Editor of RStudio.\n\n\n\n\n\nWe set a random seed for reproducibility. Setting this ensures that you should get exactly the same results on your computer as we do. We also set an option that makes cmdstanr show line numbers when printing model code. This is not strictly necessary but will help us talk about the models.\n\nset.seed(123)\noptions(cmdstanr_print_line_numbers = TRUE)",
+    "crumbs": [
+      "Nowcasting concepts"
+    ]
+  },
+  {
+    "objectID": "sessions/nowcasting.html#source-file",
+    "href": "sessions/nowcasting.html#source-file",
+    "title": "Nowcasting concepts",
+    "section": "",
+    "text": "The source file of this session is located at sessions/nowcasting.qmd.",
+    "crumbs": [
+      "Nowcasting concepts"
+    ]
+  },
+  {
+    "objectID": "sessions/nowcasting.html#libraries-used",
+    "href": "sessions/nowcasting.html#libraries-used",
+    "title": "Nowcasting concepts",
+    "section": "",
+    "text": "In this session we will use the nfidd package to load a data set of infection times and access stan models and helper functions, the dplyr and tidyr packages for data wrangling, ggplot2 library for plotting, and the tidybayes package for extracting results of the inference.\n\nlibrary(\"nfidd\")\nlibrary(\"dplyr\")\nlibrary(\"tidyr\")\nlibrary(\"ggplot2\")\nlibrary(\"tidybayes\")\n\n\n\n\n\n\n\nTip\n\n\n\nThe best way to interact with the material is via the Visual Editor of RStudio.",
+    "crumbs": [
+      "Nowcasting concepts"
+    ]
+  },
+  {
+    "objectID": "sessions/nowcasting.html#initialisation",
+    "href": "sessions/nowcasting.html#initialisation",
+    "title": "Nowcasting concepts",
+    "section": "",
+    "text": "We set a random seed for reproducibility. Setting this ensures that you should get exactly the same results on your computer as we do. We also set an option that makes cmdstanr show line numbers when printing model code. This is not strictly necessary but will help us talk about the models.\n\nset.seed(123)\noptions(cmdstanr_print_line_numbers = TRUE)",
+    "crumbs": [
+      "Nowcasting concepts"
+    ]
+  },
+  {
+    "objectID": "sessions/nowcasting.html#the-simplest-possible-nowcasting-model",
+    "href": "sessions/nowcasting.html#the-simplest-possible-nowcasting-model",
+    "title": "Nowcasting concepts",
+    "section": "The simplest possible nowcasting model",
+    "text": "The simplest possible nowcasting model\nHere we assume that the delay distribution is known and that we can use it to nowcast the most recent data. In practice, the delay distribution is often not known and needs to be estimated from the data - this is what we’ll explore in the joint nowcasting session.\nWe can use delay distributions convolved with the infection times to estimate the time series of symptom onsets. A simple way to nowcast is to use the same approach but using the cumulative distribution function of the delay distribution rather than the probability density function and only apply it to the most recent data as this is the only data that can be subject to change (due to delays in reporting).\nWe will build intuition for this as usual using simulation. First we define the proportion reported using a delay distribution up to 15 days, again using a lognormal distribution with meanlog 1 and sdlog 0.5:\n\nproportion_reported &lt;- plnorm(1:15, 1, 0.5)\nplot(proportion_reported)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nThe plnorm function\n\n\n\nThe plnorm() function is related to the rlnorm() function we used earlier to simulate the individual level reporting delay, but instead it gives the cumulative distribution function rather than random samples. That is, it gives us the probability that a report is made on day 1 or earlier, day 2 or earlier, etc.\n\n\nWe can now use this delay distribution to nowcast the most recent data. Here we use the same simulation approach as in the renewal session (here we have created helper functions make_gen_time_pmf() and make_ip_pmf() to make it easier to re-use; we recommend to have a look at what these functions do), and apply the reporting_delay to the last 15 days of data.\n\ngen_time_pmf &lt;- make_gen_time_pmf()\nip_pmf &lt;- make_ip_pmf()\nonset_df &lt;- simulate_onsets(\n  make_daily_infections(infection_times), gen_time_pmf, ip_pmf\n)\nreported_onset_df &lt;- onset_df |&gt;\n  filter(day &lt; cutoff) |&gt;\n  mutate(proportion_reported = c(rep(1, n() - 15), rev(proportion_reported)),\n         reported_onsets = rpois(n(), onsets * proportion_reported)\n  )\ntail(reported_onset_df)\n\n# A tibble: 6 × 5\n    day onsets infections proportion_reported reported_onsets\n  &lt;dbl&gt;  &lt;int&gt;      &lt;int&gt;               &lt;dbl&gt;           &lt;int&gt;\n1    65     63         83              0.943               51\n2    66     64         75              0.889               58\n3    67     75         92              0.780               57\n4    68     78        113              0.578               34\n5    69     69        120              0.270               20\n6    70     84        115              0.0228               4\n\n\n\n\n\n\n\n\nTake 3 minutes\n\n\n\nSpend a few minutes trying to understand the code above. What is the proportion_reported? What is the reported_onsets?\n\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\nThe proportion_reported is the cumulative distribution function of the delay distribution. It gives the probability that a report is made on day 1 or earlier, day 2 or earlier, etc. Note that for days more that 15 days into the past, this is 1, meaning all onsets that occurred on that day have been reported.\nThe reported_onsets are the number of onsets that are reported on each day. This is calculated by multiplying the number of onsets by the proportion of onsets that are reported on each day. It has Poisson noise added to it to simulate the stochasticity in the reporting process.\n\n\nreported_onset_df |&gt;\n  ggplot(aes(x = day, y = reported_onsets)) +\n  geom_col()\n\n\n\n\n\n\n\n\n\n\n\nWe can now fit our first nowcasting model. Here we assume exactly the same generative process as we used for simulation and model the number of onsets as independent draws from a normal distribution.\n\nmod &lt;- nfidd_cmdstan_model(\"simple-nowcast\")\nmod\n\n 1: functions {\n 2:   #include \"functions/condition_onsets_by_report.stan\"\n 3: }\n 4: \n 5: data {\n 6:   int n;                // number of days\n 7:   array[n] int obs;     // observed symptom onsets\n 8:   int report_max;       // max reporting delay\n 9:   array[report_max + 1] real report_cdf;\n10: }\n11: \n12: parameters {\n13:   array[n] real&lt;lower = 0&gt; onsets;\n14: }\n15: \n16: transformed parameters {\n17:   array[n] real reported_onsets = condition_onsets_by_report(onsets, report_cdf);\n18: }\n19: \n20: model {\n21:   onsets ~ normal(5, 20) T[0,];\n22:   // Likelihood\n23:   obs ~ poisson(reported_onsets);\n24: }\n\n\n\n\n\n\n\n\nTake 2 minutes\n\n\n\nFamiliarise yourself with the model above. What does it do?\n\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\nOn line 2 we define a new function condition_onsets_by_report.stan which takes the number of onsets and reports and the delay distribution as input and returns the nowcasted number of onsets. To find out more about what this function does, you can inspect the condition_onsets_by_report R function or navigate to condition_onsets_by_report.stan.\nOn line 17, this function is used to calculate the nowcasted number of onsets and this is then used in the likelihood.\nOn line 21, we define the generative process for the number of onsets. Here we assume that onsets are independent with each drawn from a normal distribution.\n\n\n\n\nOnce again we can generate estimates from this model:\n\ndata &lt;- list(\n  n = nrow(reported_onset_df) - 1,\n  obs = reported_onset_df$reported_onsets[-1],\n  report_max = length(proportion_reported) - 1,\n  report_cdf = proportion_reported \n)\nsimple_nowcast_fit &lt;- nfidd_sample(mod, data = data)\n\n\nsimple_nowcast_fit\n\n  variable    mean  median   sd  mad      q5     q95 rhat ess_bulk ess_tail\n lp__      2342.51 2342.81 5.96 5.96 2332.23 2351.72 1.00      755     1093\n onsets[1]    0.97    0.72 0.93 0.71    0.05    2.90 1.00     2788     1196\n onsets[2]    1.00    0.69 1.00 0.71    0.05    3.00 1.00     2000      778\n onsets[3]    1.03    0.69 1.07 0.74    0.05    3.13 1.00     2592      955\n onsets[4]    1.02    0.74 1.00 0.75    0.05    2.98 1.00     2872     1173\n onsets[5]    1.07    0.72 1.08 0.75    0.06    3.23 1.00     3070     1060\n onsets[6]    1.02    0.68 1.06 0.71    0.05    3.06 1.00     2501     1072\n onsets[7]    2.04    1.72 1.48 1.22    0.34    4.89 1.00     3156     1356\n onsets[8]    1.99    1.66 1.35 1.18    0.39    4.59 1.00     3441     1312\n onsets[9]    1.02    0.70 1.02 0.75    0.04    3.04 1.00     2757      834\n\n # showing 10 of 139 rows (change via 'max_rows' argument or 'cmdstanr_max_rows' option)\n\n\nWe can now plot onsets alongside those nowcasted by the model:\n\nnowcast_onsets &lt;- simple_nowcast_fit |&gt;\n  gather_draws(onsets[day]) |&gt;\n  ungroup() |&gt;\n  filter(.draw %in% sample(.draw, 100)) |&gt;\n  mutate(day = day + 1)\n\n\nggplot(nowcast_onsets, aes(x = day)) +\n  geom_line(mapping = aes(y = .value, group = .draw), alpha = 0.1) +\n  geom_col(data = reported_onset_df, mapping = aes(y = onsets), alpha = 0.6) +\n  geom_point(data = reported_onset_df, mapping = aes(y = reported_onsets))\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nTip\n\n\n\nThe points in this plot represent the data available when the nowcast was made (and so are truncated) whilst the bars represent the finally reported data (a perfect nowcast would exactly reproduce these).\n\n\n\n\n\n\n\n\nTip\n\n\n\nThis simple model struggles to recreate the true number of onsets. This is because it does not capture the generative process of the data (i.e. the transmission process and delays from infection to onset). In the next section we will see how we can use a model that does capture this generative process to improve our nowcasts.\n\n\n\n\n\n\n\n\nSimple multiplicative nowcasting methods\n\n\n\nBefore moving to more complex models, it’s worth noting that there is an even simpler nowcasting method that simply divides currently observed counts by the cumulative distribution function (CDF) of the delay distribution. This approach is often called “multiplicative” or “scaling” nowcasting.\nWhile this method appears simple, it still embodies a model with specific assumptions that can be difficult to define precisely. Key challenges include:\n\nThe method struggles with noisy data, particularly when counts are low\nSparse data (e.g., zero counts) can lead to unstable estimates\nGenerating uncertainty\nThe implicit assumptions about the data generating process are not always clear\n\nThe baselinenowcast R package provides a set of tools for these types of methods, including approaches to handle both noise and sparsity in the data. These baseline methods can serve as useful benchmarks when developing more complex nowcasting models.",
+    "crumbs": [
+      "Nowcasting concepts"
+    ]
+  },
+  {
+    "objectID": "sessions/nowcasting.html#adding-in-a-geometric-random-walk-to-the-nowcasting-model",
+    "href": "sessions/nowcasting.html#adding-in-a-geometric-random-walk-to-the-nowcasting-model",
+    "title": "Nowcasting concepts",
+    "section": "Adding in a geometric random walk to the nowcasting model",
+    "text": "Adding in a geometric random walk to the nowcasting model\nAs we saw in the session on the renewal equation, a geometric random walk is a simple way to model multiplicative growth. Adding this into our simple nowcasting model may help us to better capture the generative process of the data and so produce a better nowcast.\nWe first load the model\n\nrw_mod &lt;- nfidd_cmdstan_model(\"simple-nowcast-rw\")\nrw_mod\n\n 1: functions {\n 2:   #include \"functions/geometric_random_walk.stan\"\n 3:   #include \"functions/condition_onsets_by_report.stan\"\n 4: }\n 5: \n 6: data {\n 7:   int n;                // number of days\n 8:   array[n] int obs;     // observed symptom onsets\n 9:   int report_max;       // max reporting delay\n10:   array[report_max + 1] real report_cdf;\n11: }\n12: \n13: parameters {\n14:   real&lt;lower=0&gt; init_onsets;\n15:   array[n-1] real rw_noise;\n16:   real&lt;lower=0&gt; rw_sd;\n17: }\n18: \n19: transformed parameters {\n20:   array[n] real onsets = geometric_random_walk(init_onsets, rw_noise, rw_sd);\n21:   array[n] real reported_onsets = condition_onsets_by_report(onsets, report_cdf);\n22: }\n23: \n24: model {\n25:   init_onsets ~ lognormal(0, 1) T[0,];\n26:   rw_noise ~ std_normal();\n27:   rw_sd ~ normal(0, 5) T[0,];\n28:   //Likelihood\n29:   obs ~ poisson(reported_onsets);\n30: }\n\n\nand then fit it\n\nrw_nowcast_fit &lt;- nfidd_sample(rw_mod, data = data)\n\n\nrw_nowcast_fit\n\n    variable    mean  median   sd  mad      q5     q95 rhat ess_bulk ess_tail\n lp__        2186.23 2186.49 8.09 8.20 2172.81 2199.02 1.01      459      959\n init_onsets    0.43    0.37 0.23 0.20    0.14    0.89 1.00     2009     1493\n rw_noise[1]   -0.20   -0.20 0.94 0.96   -1.75    1.34 1.00     3064     1645\n rw_noise[2]   -0.06   -0.08 0.95 0.92   -1.60    1.58 1.00     2400     1379\n rw_noise[3]    0.04    0.03 0.95 0.94   -1.53    1.61 1.01     2532     1353\n rw_noise[4]    0.20    0.23 0.98 0.99   -1.43    1.77 1.00     2635     1282\n rw_noise[5]    0.32    0.32 0.96 0.96   -1.20    1.95 1.00     3536     1570\n rw_noise[6]    0.44    0.44 1.02 1.06   -1.19    2.10 1.01     2876     1485\n rw_noise[7]    0.32    0.33 0.92 0.91   -1.17    1.82 1.00     3044     1246\n rw_noise[8]    0.12    0.09 0.96 0.94   -1.45    1.69 1.00     3174     1156\n\n # showing 10 of 209 rows (change via 'max_rows' argument or 'cmdstanr_max_rows' option)\n\n\nAgain we can extract the nowcasted onsets and plot them alongside the observed data:\n\nrw_nowcast_onsets &lt;- rw_nowcast_fit |&gt;\n  gather_draws(onsets[day]) |&gt;\n  ungroup() |&gt;\n  filter(.draw %in% sample(.draw, 100)) |&gt; ## sample 100 iterations randomly\n  mutate(day = day + 1)\n\n\nggplot(rw_nowcast_onsets, aes(x = day)) +\n  geom_col(data = reported_onset_df, mapping = aes(y = onsets), alpha = 0.6) +\n  geom_line(mapping = aes(y = .value, group = .draw), alpha = 0.1) +\n  geom_point(data = reported_onset_df, mapping = aes(y = reported_onsets))\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nTake 2 minute\n\n\n\nWhat do you think of the nowcast now? Does it look better than the previous one?\n\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\nThe nowcast better matches the ultimately observed data. The geometric random walk allows the model to capture the multiplicative growth in the data and so better capture that current indidence is related to past incidence.\nThis should be particularly true when the data is more truncated (i.e nearer to the date of the nowcast) as the geometric random walk allows the model to extrapolate incidence based on previous incidence rather than relying on the prior distribution as the simpler model did.\nHowever, the model is still quite simple and so may struggle to capture more complex patterns in the data. In particular, the prior model for the geometric random walk assumes that onsets are the same as the previous day with statistical noise. This may not be a good assumption in a rapidly changing epidemic (where the reproduction number is not near 1).",
+    "crumbs": [
+      "Nowcasting concepts"
+    ]
+  },
+  {
+    "objectID": "sessions/nowcasting.html#what-happens-if-we-get-the-delay-distribution-wrong",
+    "href": "sessions/nowcasting.html#what-happens-if-we-get-the-delay-distribution-wrong",
+    "title": "Nowcasting concepts",
+    "section": "What happens if we get the delay distribution wrong?",
+    "text": "What happens if we get the delay distribution wrong?\n\n\n\n\n\n\nOptional section\n\n\n\nThis section can be skipped if time is limited. It demonstrates the importance of accurate delay distribution estimation.\n\n\nIn practice, we often do not know the delay distribution and so need to estimate it using the data at hand. This is particularly challenging with population-level surveillance data where we have aggregated counts rather than individual records. We will now look at what happens if we get the delay distribution wrong.\nWe use the same data as before but now assume that the delay distribution is a gamma distribution with shape 2 and rate 3. This is a very different distribution to the lognormal distribution we used to simulate the data.\n\nwrong_proportion_reported &lt;- pgamma(1:15, 2, 3)\nplot(wrong_proportion_reported)\n\n\n\n\n\n\n\n\nWe first need to update the data to use this new delay distribution:\n\nwrong_delay_data &lt;- data\nwrong_delay_data$report_cdf &lt;- wrong_proportion_reported\n\nWe now fit the nowcasting model with the wrong delay distribution:\n\ngamma_nowcast_fit &lt;- nfidd_sample(rw_mod, data = wrong_delay_data)\n\n\ngamma_nowcast_fit\n\n    variable    mean  median   sd  mad      q5     q95 rhat ess_bulk ess_tail\n lp__        2188.54 2188.85 8.24 7.96 2173.87 2201.57 1.01      492      970\n init_onsets    0.40    0.34 0.24 0.19    0.12    0.87 1.00     1942     1327\n rw_noise[1]   -0.26   -0.27 0.92 0.94   -1.79    1.31 1.00     2257     1407\n rw_noise[2]   -0.14   -0.15 0.96 0.94   -1.67    1.43 1.00     2124     1336\n rw_noise[3]    0.03    0.02 0.94 0.95   -1.48    1.60 1.00     2291     1567\n rw_noise[4]    0.14    0.14 0.92 0.93   -1.37    1.68 1.00     1693     1611\n rw_noise[5]    0.33    0.31 0.93 0.92   -1.19    1.88 1.00     2906     1407\n rw_noise[6]    0.47    0.47 0.87 0.90   -0.95    1.89 1.00     2238     1287\n rw_noise[7]    0.22    0.22 0.93 0.93   -1.30    1.81 1.00     2767     1415\n rw_noise[8]    0.07    0.05 0.95 0.95   -1.47    1.62 1.00     2023     1313\n\n # showing 10 of 209 rows (change via 'max_rows' argument or 'cmdstanr_max_rows' option)\n\n\nAgain we can extract the nowcast of symptom onsets and plot it alongside the observed data:\n\ngamma_nowcast_onsets &lt;- gamma_nowcast_fit |&gt;\n  gather_draws(onsets[day]) |&gt;\n  ungroup() |&gt;\n  filter(.draw %in% sample(.draw, 100)) |&gt;\n  mutate(day = day + 1)\n\n\nggplot(gamma_nowcast_onsets, aes(x = day)) +\n  geom_col(data = reported_onset_df, mapping = aes(y = onsets), alpha = 0.6) +\n  geom_line(mapping = aes(y = .value, group = .draw), alpha = 0.1) +\n  geom_point(data = reported_onset_df, mapping = aes(y = reported_onsets))\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nTake 2 minute\n\n\n\nWhat do you think of the nowcast now? How would you know you had the wrong delay if you didn’t have the true delay distribution?\n\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\nThe nowcast now looks very different to the observed data. This is because the model is using the wrong delay distribution to nowcast the data.\nIf you didn’t have the true delay distribution you would not know that you had the wrong delay distribution. This is why it is important to estimate the delay distribution from the data.\nIn practice, you would likely compare the nowcast to the observed data and if they did not match you would consider whether the delay distribution was the cause.",
+    "crumbs": [
+      "Nowcasting concepts"
+    ]
+  },
+  {
+    "objectID": "sessions/nowcasting.html#methods-in-practice",
+    "href": "sessions/nowcasting.html#methods-in-practice",
+    "title": "Nowcasting concepts",
+    "section": "Methods in practice",
+    "text": "Methods in practice\n\nWolffram et al., Collaborative nowcasting of COVID-19 hospitalization incidences in Germany compares the performance of a range of methods that were used in a nowcasting hub and investigates what might explain performance differences.\nThe baselinenowcast R package provides implementations of simple multiplicative nowcasting methods that can serve as baselines for comparison with more complex approaches.",
+    "crumbs": [
+      "Nowcasting concepts"
+    ]
+  },
+  {
+    "objectID": "sessions/nowcasting.html#references",
+    "href": "sessions/nowcasting.html#references",
+    "title": "Nowcasting concepts",
+    "section": "References",
+    "text": "References",
+    "crumbs": [
+      "Nowcasting concepts"
+    ]
+  },
+  {
+    "objectID": "sessions/introduction-and-course-overview.html",
+    "href": "sessions/introduction-and-course-overview.html",
+    "title": "Introduction and course overview",
+    "section": "",
+    "text": "From an epidemiological line list to informing decisions in real-time",
+    "crumbs": [
+      "Introduction and course overview"
+    ]
+  },
+  {
+    "objectID": "sessions/introduction-and-course-overview.html#footnotes",
+    "href": "sessions/introduction-and-course-overview.html#footnotes",
+    "title": "Introduction and course overview",
+    "section": "Footnotes",
+    "text": "Footnotes\n\n\nTime travel is messy stuff↩︎",
+    "crumbs": [
+      "Introduction and course overview"
+    ]
+  },
+  {
+    "objectID": "reference/using-our-stan-models.html",
+    "href": "reference/using-our-stan-models.html",
+    "title": "Using our Stan models",
+    "section": "",
+    "text": "This guide covers how to use NFIDD’s Stan tools for working with both package models and custom Stan code.",
+    "crumbs": [
+      "Using our Stan models"
+    ]
+  },
+  {
+    "objectID": "reference/using-our-stan-models.html#using-stan-models",
+    "href": "reference/using-our-stan-models.html#using-stan-models",
+    "title": "Using our Stan models",
+    "section": "Using Stan Models",
+    "text": "Using Stan Models\n\nBasic Package Models\nUse models included in the NFIDD package:\n\nnfidd_stan_models()\n\n [1] \"censored-delay-model\"           \"coin\"                          \n [3] \"estimate-inf-and-r-rw-forecast\" \"estimate-inf-and-r-rw\"         \n [5] \"estimate-inf-and-r\"             \"estimate-infections\"           \n [7] \"estimate-r\"                     \"gamma\"                         \n [9] \"joint-nowcast-with-r\"           \"joint-nowcast\"                 \n[11] \"lognormal\"                      \"mechanistic-r\"                 \n[13] \"simple-nowcast-rw\"              \"simple-nowcast\"                \n[15] \"statistical-r\"                  \"truncated-delay-model\"         \n\n\nCreate a model using a package model:\n\nmodel &lt;- nfidd_cmdstan_model(\"simple-nowcast\")\n\nSample with course defaults (faster):\n\nfit &lt;- nfidd_sample(model, data = your_data)\n\n\n\nCustom Stan Files\nUse a custom Stan file:\n\nmodel &lt;- nfidd_cmdstan_model(model_file = \"path/to/your/model.stan\")\n\nYou still get access to NFIDD Stan functions:\n\nfit &lt;- nfidd_sample(model, data = your_data)\n\n\n\nCustom Include Paths\nSet globally using R options:\n\noptions(nfidd.stan_path = \"/path/to/your/stan\")\nmodel &lt;- nfidd_cmdstan_model(\"simple-nowcast\")\n\nOr override per-model:\n\nmodel &lt;- nfidd_cmdstan_model(\n  model_file = \"custom.stan\",\n  include_paths = c(\"/custom/path1\", \"/custom/path2\")\n)",
+    "crumbs": [
+      "Using our Stan models"
+    ]
+  },
+  {
+    "objectID": "reference/using-our-stan-models.html#working-with-stan-functions",
+    "href": "reference/using-our-stan-models.html#working-with-stan-functions",
+    "title": "Using our Stan models",
+    "section": "Working with Stan Functions",
+    "text": "Working with Stan Functions\n\nDiscover Available Functions\nGet all function names from NFIDD:\n\nfunctions &lt;- nfidd_stan_functions()\nfunctions\n\n[1] \"combine_obs_with_predicted_obs_rng\" \"condition_onsets_by_report\"        \n[3] \"convolve_with_delay\"                \"geometric_diff_ar\"                 \n[5] \"geometric_random_walk\"              \"observe_onsets_with_delay\"         \n[7] \"pop_bounded_renewal\"                \"renewal\"                           \n\n\nFind which files contain specific functions:\n\nfiles &lt;- nfidd_stan_function_files(functions = c(\"renewal\"))\nfiles\n\n[1] \"functions/renewal.stan\"\n\n\n\n\nExtract Functions for Local Use\nLoad specific functions as a string:\n\nrenewal_code &lt;- nfidd_load_stan_functions(\n  functions = c(\"renewal\")\n)\n\nShow first few lines:\n\ncat(substr(renewal_code, 1, 200), \"...\")\n\n// Stan functions from nfidd version 1.2.0.9000\narray[] real renewal(real I0, array[] real R, array[] real gen_time) {\n  // length of time series\n  int n = num_elements(R);\n  int max_gen_time = num_el ...\n\n\nWrite functions to a temporary file for demonstration:\n\ntemp_file &lt;- file.path(tempdir(), \"my_functions.stan\")\nnfidd_load_stan_functions(\n  functions = c(\"renewal\"),\n  write_to_file = TRUE,\n  output_file = temp_file,\n  wrap_in_block = TRUE\n)\n\nStan functions written to: /tmp/RtmpuSwh4I/my_functions.stan\n\n\n[1] \"functions {\\n// Stan functions from nfidd version 1.2.0.9000\\narray[] real renewal(real I0, array[] real R, array[] real gen_time) {\\n  // length of time series\\n  int n = num_elements(R);\\n  int max_gen_time = num_elements(gen_time);\\n  array[n + 1] real I;\\n  I[1] = I0;\\n  for (i in 1:n) {\\n    int first_index = max(1, i - max_gen_time + 1);\\n    int len = i - first_index + 1;\\n    array[len] real I_segment = I[first_index:i];\\n    array[len] real gen_pmf = reverse(gen_time[1:len]);\\n    I[i + 1] = dot_product(I_segment, gen_pmf) * R[i];\\n  }\\n  return(I[2:(n + 1)]);\\n}\\n}\"\n\n\nVerify file was created:\n\ncat(\"File created at:\", temp_file)\n\nFile created at: /tmp/RtmpuSwh4I/my_functions.stan\n\ncat(\"\\nFile exists:\", file.exists(temp_file))\n\n\nFile exists: TRUE\n\n\n\n\nLoad All Functions\nGet all NFIDD functions:\n\nall_functions &lt;- nfidd_load_stan_functions()\n\nWrite all functions to file:\n\nnfidd_load_stan_functions(\n  write_to_file = TRUE,\n  output_file = \"nfidd_functions.stan\",\n  wrap_in_block = TRUE\n)",
+    "crumbs": [
+      "Using our Stan models"
+    ]
+  },
+  {
+    "objectID": "reference/using-our-stan-models.html#writing-package-models-locally",
+    "href": "reference/using-our-stan-models.html#writing-package-models-locally",
+    "title": "Using our Stan models",
+    "section": "Writing Package Models Locally",
+    "text": "Writing Package Models Locally\nSometimes you want to copy a package model to modify it locally rather than modifying the package source.\nLoad a package model:\n\nmodel &lt;- nfidd_cmdstan_model(\"simple-nowcast\", compile = FALSE)\n\nGet the Stan code from the model:\n\nstan_code &lt;- model$code()\n\nWrite it to a local file:\n\nwriteLines(stan_code, \"local-simple-nowcast.stan\")\n\nCreate functions directory:\n\ndir.create(\"functions\", showWarnings = FALSE)\n\nCopy all function files individually:\n\nstan_functions_path &lt;- file.path(nfidd_stan_path(), \"functions\")\nfunction_files &lt;- list.files(stan_functions_path, pattern = \"\\\\.stan$\", full.names = TRUE)\n\nfor (file in function_files) {\n  file.copy(file, \"functions/\", overwrite = TRUE)\n}\n\nSet options to use local functions:\n\noptions(nfidd.stan_path = \".\")\n\nNow you can modify the local model and it will use local functions:\n\nmodified_model &lt;- nfidd_cmdstan_model(model_file = \"local-simple-nowcast.stan\")",
+    "crumbs": [
+      "Using our Stan models"
+    ]
+  },
+  {
+    "objectID": "reference/using-our-stan-models.html#practical-workflows",
+    "href": "reference/using-our-stan-models.html#practical-workflows",
+    "title": "Using our Stan models",
+    "section": "Practical Workflows",
+    "text": "Practical Workflows\n\nBuilding Custom Models with NFIDD Functions\nExtract the functions you need:\n\nnfidd_load_stan_functions(\n  functions = c(\"renewal\", \"convolve_with_delay\"),\n  write_to_file = TRUE,\n  output_file = \"my_functions.stan\"\n)\n\nCreate your custom model file:\n\n#include my_functions.stan\n\ndata {\n  // Your data block\n}\n\nparameters {\n  // Your parameters\n}\n\nmodel {\n  // Use NFIDD functions like renewal(), delay_pmf(), etc.\n}\n\nCompile and use:\n\nmodel &lt;- nfidd_cmdstan_model(\n  model_file = \"my_custom_model.stan\",\n  include_paths = \".\"\n)\n\n\n\nDevelopment Workflow\nExplore existing models:\nSee what models are available:\n\nnfidd_stan_models()\n\n [1] \"censored-delay-model\"           \"coin\"                          \n [3] \"estimate-inf-and-r-rw-forecast\" \"estimate-inf-and-r-rw\"         \n [5] \"estimate-inf-and-r\"             \"estimate-infections\"           \n [7] \"estimate-r\"                     \"gamma\"                         \n [9] \"joint-nowcast-with-r\"           \"joint-nowcast\"                 \n[11] \"lognormal\"                      \"mechanistic-r\"                 \n[13] \"simple-nowcast-rw\"              \"simple-nowcast\"                \n[15] \"statistical-r\"                  \"truncated-delay-model\"         \n\n\nLook at model locations:\n\nnfidd_stan_path()\n\n[1] \"/home/runner/work/_temp/Library/nfidd/stan\"\n\n\nUnderstand function dependencies:\nSee all available functions:\n\nnfidd_stan_functions()\n\nFind which files contain functions you need:\n\nnfidd_stan_function_files(functions = c(\"function_name\"))\n\nBuild incrementally:\nStart with package model:\n\nbase_model &lt;- nfidd_cmdstan_model(\"simple-nowcast\")\n\nExtend with custom functions:\n\ncustom_model &lt;- nfidd_cmdstan_model(\n  model_file = \"extended_model.stan\"\n)",
+    "crumbs": [
+      "Using our Stan models"
+    ]
+  },
+  {
+    "objectID": "reference/using-our-stan-models.html#file-organisation",
+    "href": "reference/using-our-stan-models.html#file-organisation",
+    "title": "Using our Stan models",
+    "section": "File Organisation",
+    "text": "File Organisation\nFor projects using custom Stan code:\nyour_project/\n├── models/\n│   ├── my_model.stan\n│   └── functions/\n│       └── my_functions.stan\nIn your R code:\n\noptions(nfidd.stan_path = c(\"models/functions\", nfidd_stan_path()))\nmodel &lt;- nfidd_cmdstan_model(model_file = \"models/my_model.stan\")\n\nThis setup gives you access to both your custom functions and all NFIDD functions.",
+    "crumbs": [
+      "Using our Stan models"
+    ]
+  },
+  {
+    "objectID": "reference/sessions.html",
+    "href": "reference/sessions.html",
+    "title": "Session timetable",
+    "section": "",
+    "text": "Tuesday - Half day (09.15-12.30)\n\n\nTuesday: 09.15-09.30\n\nCourse overview and motivation: from line list to decisions (15 mins)\n\n\n\n\nTuesday: 09.30-10.30\n\nIntroduction: the time-varying reproduction number (10 mins)\nPractice: using the renewal equation to estimate R (45 mins)\nWrap up (5 mins)\n\nBreak: 10.30-11.00\n\n\n\nTuesday: 11.00-11.30\n\nIntroduction: nowcasting as a right-truncation problem (10 mins)\nPractice: simulating and basic nowcasting (20 mins)\n\n\n\n\nTuesday: 11.30-12.30\n\nIntroduction: joint estimation of delays and nowcasts (10 mins)\nPractice: joint estimation of delays and nowcasts (40 mins)\nWrap up: consolidating key concepts (10 mins)",
+    "crumbs": [
+      "Session timetable"
+    ]
+  },
+  {
+    "objectID": "reference/sessions.html#course-introduction-and-overview",
+    "href": "reference/sessions.html#course-introduction-and-overview",
+    "title": "Session timetable",
+    "section": "",
+    "text": "Tuesday: 09.15-09.30\n\nCourse overview and motivation: from line list to decisions (15 mins)",
+    "crumbs": [
+      "Session timetable"
+    ]
+  },
+  {
+    "objectID": "reference/sessions.html#session-1-r_t-estimation-and-the-renewal-equation",
+    "href": "reference/sessions.html#session-1-r_t-estimation-and-the-renewal-equation",
+    "title": "Session timetable",
+    "section": "",
+    "text": "Tuesday: 09.30-10.30\n\nIntroduction: the time-varying reproduction number (10 mins)\nPractice: using the renewal equation to estimate R (45 mins)\nWrap up (5 mins)\n\nBreak: 10.30-11.00",
+    "crumbs": [
+      "Session timetable"
+    ]
+  },
+  {
+    "objectID": "reference/sessions.html#session-2-nowcasting-concepts",
+    "href": "reference/sessions.html#session-2-nowcasting-concepts",
+    "title": "Session timetable",
+    "section": "",
+    "text": "Tuesday: 11.00-11.30\n\nIntroduction: nowcasting as a right-truncation problem (10 mins)\nPractice: simulating and basic nowcasting (20 mins)",
+    "crumbs": [
+      "Session timetable"
+    ]
+  },
+  {
+    "objectID": "reference/sessions.html#session-3-nowcasting-with-an-unknown-reporting-delay",
+    "href": "reference/sessions.html#session-3-nowcasting-with-an-unknown-reporting-delay",
+    "title": "Session timetable",
+    "section": "",
+    "text": "Tuesday: 11.30-12.30\n\nIntroduction: joint estimation of delays and nowcasts (10 mins)\nPractice: joint estimation of delays and nowcasts (40 mins)\nWrap up: consolidating key concepts (10 mins)",
+    "crumbs": [
+      "Session timetable"
+    ]
+  },
+  {
+    "objectID": "reference/help.html",
+    "href": "reference/help.html",
+    "title": "Getting help",
+    "section": "",
+    "text": "For any questions about the course or its content, feel free to use the Discussion board",
+    "crumbs": [
+      "Getting help"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Nowcasting and forecasting infectious disease dynamics - EMBL-EBI",
+    "section": "",
+    "text": "A focused course on Rt estimation and nowcasting methods originally developed by the nfidd team, adapted for SISMID, and further refined for EMBL-EBI.\nWe invite anyone to use the materials here in their own teaching and learning. For questions and discussion of the course or its content, we welcome all users to the Discussion board. We welcome all forms of contributions, additions and suggestions for improving the materials.\nAll materials here are provided under the permissive MIT License."
+  },
+  {
+    "objectID": "authors.html",
+    "href": "authors.html",
+    "title": "Authors",
+    "section": "",
+    "text": "The NFIDD course was developed by the NFIDD course contributors:\nThe SISMID course was adapted by the SISMID course contributors:\nThe EMBL-EBI course was adapted by the EMBL-EBI course contributors:"
+  },
+  {
+    "objectID": "authors.html#how-to-cite",
+    "href": "authors.html#how-to-cite",
+    "title": "Authors",
+    "section": "How to Cite",
+    "text": "How to Cite\nIf you use materials from this course in your work, please cite:\n\nNFIDD course contributors (2025). NFIDD: Nowcasting and Forecasting Infectious Disease Dynamics. Version [VERSION]. DOI: [PLACEHOLDER - Zenodo DOI will be added upon release]\n\n\nSISMID course contributors (2025). NFIDD SISMID: Nowcasting and Forecasting Infectious Disease Dynamics - SISMID. Version [VERSION]. DOI: [PLACEHOLDER - Zenodo DOI will be added upon release]\n\n\nEMBL-EBI course contributors (2025). NFIDD EMBL-EBI: Nowcasting and Forecasting Infectious Disease Dynamics - EMBL-EBI. Version [VERSION]. DOI: [PLACEHOLDER - Zenodo DOI will be added upon release]\n\n\nBibTeX Entry\n@misc{nfidd2025,\n  author = {{Sam Abbott, Katherine Sherratt, Sebastian Funk}},\n  title = {{NFIDD: Nowcasting and Forecasting Infectious Disease Dynamics}},\n  year = {2025},\n  version = {[VERSION]},\n  doi = {[PLACEHOLDER - Zenodo DOI]},\n  url = {https://nfidd.github.io/nfidd/}\n}\n@misc{sismid2025,\n  author = {{Sam Abbott, Thomas Robacker, Nick Reich}},\n  title = {{NFIDD SISMID: Nowcasting and Forecasting Infectious Disease Dynamics - SISMID}},\n  year = {2025},\n  version = {[VERSION]},\n  doi = {[PLACEHOLDER - Zenodo DOI]},\n  url = {https://nfidd.github.io/sismid/}\n}\n@misc{embldebi2025,\n  author = {{Sam Abbott, Joel Hellewell}},\n  title = {{NFIDD EMBL-EBI: Nowcasting and Forecasting Infectious Disease Dynamics - EMBL-EBI}},\n  year = {2025},\n  version = {[VERSION]},\n  doi = {[PLACEHOLDER - Zenodo DOI]},\n  url = {https://nfidd.github.io/embl-ebi/}\n}"
+  },
+  {
+    "objectID": "authors.html#funding",
+    "href": "authors.html#funding",
+    "title": "Authors",
+    "section": "Funding",
+    "text": "Funding\nThese training materials have been developed with support by the National Institutes of General Medical Sciences (R35GM119582), the US Centers for Disease Control and Prevention (NU38FT000008), and the Wellcome Trust (210758/Z/18/Z). The content is solely the responsibility of the authors and does not necessarily represent the official views of NIGMS, the National Institutes of Health, the CDC, or the Wellcome Trust."
+  },
+  {
+    "objectID": "authors.html#license",
+    "href": "authors.html#license",
+    "title": "Authors",
+    "section": "License",
+    "text": "License\nAll course materials are provided under the MIT License, making them freely available for teaching, learning, and adaptation."
+  },
+  {
+    "objectID": "authors.html#contributing",
+    "href": "authors.html#contributing",
+    "title": "Authors",
+    "section": "Contributing",
+    "text": "Contributing\nWe welcome contributions to improve and expand the course materials. You can:\n\nReport issues or suggest improvements\nJoin discussions\nSubmit pull requests"
+  },
+  {
+    "objectID": "authors.html#acknowledgements",
+    "href": "authors.html#acknowledgements",
+    "title": "Authors",
+    "section": "Acknowledgements",
+    "text": "Acknowledgements\nWe thank all participants who have helped improve these materials through feedback, bug reports, and code contributions."
+  },
+  {
+    "objectID": "getting-started.html",
+    "href": "getting-started.html",
+    "title": "Getting started",
+    "section": "",
+    "text": "NFIDD (Nowcasting and Forecasting Infectious Disease Dynamics) is an MIT-licensed library of sessions for learning about Rt estimation and nowcasting of infectious disease surveillance data. We have adapted this course for the SISMID course and now further refined it for EMBL-EBI focusing specifically on Rt estimation and nowcasting methods. This focused course is a living resource designed to help epidemiologists, public health professionals, and researchers understand and apply real-time analysis methods to infectious disease surveillance data."
+  },
+  {
+    "objectID": "getting-started.html#what-is-nfidd",
+    "href": "getting-started.html#what-is-nfidd",
+    "title": "Getting started",
+    "section": "",
+    "text": "NFIDD (Nowcasting and Forecasting Infectious Disease Dynamics) is an MIT-licensed library of sessions for learning about Rt estimation and nowcasting of infectious disease surveillance data. We have adapted this course for the SISMID course and now further refined it for EMBL-EBI focusing specifically on Rt estimation and nowcasting methods. This focused course is a living resource designed to help epidemiologists, public health professionals, and researchers understand and apply real-time analysis methods to infectious disease surveillance data."
+  },
+  {
+    "objectID": "getting-started.html#set-up",
+    "href": "getting-started.html#set-up",
+    "title": "Getting started",
+    "section": "Set up",
+    "text": "Set up\nEach session in this course uses R code for demonstration. All the content is self-contained within a software package designed for the course.\nYou have three options for using this course:\n\nWeb-only: View sessions on the website\nLocal setup: Install R, packages, and download course materials for the full interactive experience\nHybrid: Install just the packages but use the website for viewing content\n\n\n\n\n\n\n\nImportant\n\n\n\nInstallation Issues? If you’re having trouble with any installation steps, ask for help early! Don’t skip ahead - each step builds on the previous ones. On the day of the course, we have a small number of web clients available as backup if installation issues persist.\n\n\n\nSummary of Installation Steps\nIf you choose the local setup option, here’s what you’ll need to do:\n\nInstall R and RStudio\nInstall the nfidd R package\nInstall cmdstan\nDownload course materials (if using the hybrid approach you may not need to do this)\n\nDon’t skip any steps - they all work together to provide the full course experience.\n\n\nInstalling R\n\nR is used as the main programming language. You can check which version you have by typing R.version in your R session. We recommend installing the latest R version 4.5.1 (2025-06-13).\nRStudio is a popular graphic user interface (GUI). Its Visual Editor provides the best experience of going through this course. Please make sure you update RStudio to the latest version.\n\n\n\nInstalling additional requirements\nBefore you get started with the course, you will first need to install the following software.\n\nInstallation of the nfidd package\nTo install the packages needed in the course, including the nfidd package that contains data files and helper functions used throughout:\n\nif (!require(\"pak\")) {\n    install.packages(\"pak\")\n}\npak::pak(\"nfidd/EMBL-EBI\", dependencies = TRUE)\n\n\n\n\n\n\n\nNote\n\n\n\nIf pak fails to install, you can try using remotes as an alternative:\n\nif (!require(\"remotes\")) {\n    install.packages(\"remotes\")\n}\nremotes::install_github(\"nfidd/EMBL-EBI\", dependencies = TRUE)\n\n\n\nThen you can check that the installation completed successfully by loading the package into your R session:\n\nlibrary(\"nfidd\")\n\n\n\n\nInstalling cmdstan\nThe course relies on running stan through the cmdstanr R package, which itself uses the cmdstan software. This requires a separate installation step:\n\ncmdstanr::install_cmdstan()\n\n\n\n\n\n\n\nNote\n\n\n\nThis may take a few minutes. Also you’re likely to see lots of warnings and other messages printed to your screen - don’t worry, this is normal and doesn’t mean there is a problem.\n\n\nIf there are any problems with this, you can try (on Windows) to fix them using\n\ncmdstanr::check_cmdstan_toolchain(fix = TRUE)\n\nYou can test that you have a working cmdstanr setup using\n\ncmdstanr::cmdstan_version()\n\n[1] \"2.37.0\"\n\n\nFor more details, and for links to resources in case something goes wrong, see the Getting Started with CmdStanr vignette of the package."
+  },
+  {
+    "objectID": "getting-started.html#accessing-the-course",
+    "href": "getting-started.html#accessing-the-course",
+    "title": "Getting started",
+    "section": "Accessing the course",
+    "text": "Accessing the course\nIf you want to use the local workflow (recommended), you will need a local copy of the course material.\n\nDirectly download the course material:\n\n\n\n\n\n\nTip\n\n\n\nDownload\n\n\nAlternatively, if you are familiar with git you can clone the repo.\nIf you prefer to use a hybrid workflow, you can view each session on the website (where formatting is nicest). Using this approach you can either copy-paste the code from the webpages into your own R script or use the .qmd files as Notebooks where you can go from chunk to chunk running the code.\n\nTip: if you decide to copy-paste code, then you don’t need to download the material.\nTip: if you hover over each code chunk on the website you can use a “Copy” button at the top right corner.\n\n\n\nInteracting with a local copy of the course material\nA benefit of downloading or cloning all the material is that you can interact with the session files directly.\nIn this course, all content is written using Quarto notebooks (.qmd files). This means that we can combine text with code and see the output directly. The notebooks are then directly reproduced on the course website (for example, this page).\nRecommended approach: Work with the notebooks using RStudio’s visual editor mode. See guidance on this below.\n\n\n\n\n\n\nUsing RStudio’s Visual Editor (Recommended for Notebooks)\n\n\n\n\nOpen a session notebook: Each session is saved as a .qmd file in /sessions/.\nSwitch to Visual mode: Look for the “Visual” button in the top-left of the editor pane (next to “Source”).\nExecute code: Use the green “play” button at the top-right corner of each code chunk, or Ctrl/Cmd + Enter for line-by-line execution.\nVisual mode benefits: Easier to read formatted text and equations, better experience with code chunks and outputs\n\n\n\nAlternative approaches that also work:\n\nOther visual editors: Use VS Code or other editors that support Quarto notebooks. The .qmd files will work in any Quarto-compatible environment.\n\n\n\n\n\n\n\nTip\n\n\n\nThe Quarto extension for VS Code also supports a visual editor mode. You can find it in the command palette.\n\n\n\nOther source code editors: Use RStudio, VS Code, or other editors that support interactive notebooks (without necessarily using the WYSIWYG formatting of “Visual” mode) and use the notebooks, but only in the source-code mode. This can be helpful if you want a more bare-bones experience of interacting with the code and data."
+  },
+  {
+    "objectID": "getting-started.html#day-of-course-updates",
+    "href": "getting-started.html#day-of-course-updates",
+    "title": "Getting started",
+    "section": "Day-of-Course Updates",
+    "text": "Day-of-Course Updates\nIf you’re returning to the course after some time or joining a live session, you may want to update your setup to ensure you have the latest content and package versions.\n\nQuick Update (Recommended)\n\nUpdate the nfidd package (this is quick and ensures you have the latest functions):\n\npak::pak(\"nfidd/EMBL-EBI\", dependencies = TRUE)\n\nDownload fresh course materials if using local files:\n\nDownload the latest version: Download\nOr use git pull if you cloned the repository\n\nYou don’t need to reinstall cmdstan unless you’re having specific issues with it"
+  },
+  {
+    "objectID": "reference/further_reading.html",
+    "href": "reference/further_reading.html",
+    "title": "Further reading",
+    "section": "",
+    "text": "The following is a highly subjective list of papers we would recommend to read for those interested in engaging further with the topics discussed here. You can also access this via Zotero in an open living library, which you are welcome to contribute to.",
+    "crumbs": [
+      "Further reading"
+    ]
+  },
+  {
+    "objectID": "reference/further_reading.html#delay-estimation",
+    "href": "reference/further_reading.html#delay-estimation",
+    "title": "Further reading",
+    "section": "Delay estimation",
+    "text": "Delay estimation\n\nPark et al. (2024) provide a comprehensive overview of challenges in estimating delay distribution and how to overcome them.\nCharniga et al. (2024) summarises challenges in estimating delay distributions into a set of best practices.",
+    "crumbs": [
+      "Further reading"
+    ]
+  },
+  {
+    "objectID": "reference/further_reading.html#r_t-estimation",
+    "href": "reference/further_reading.html#r_t-estimation",
+    "title": "Further reading",
+    "section": "\\(R_t\\) estimation",
+    "text": "\\(R_t\\) estimation\n\nGostic et al. (2020) provides an overview of some of the challenges in estimating reproduction numbers.\nBrockhaus et al. (2023) compares reproduction number estimates from different models and investigates their differences.",
+    "crumbs": [
+      "Further reading"
+    ]
+  },
+  {
+    "objectID": "reference/further_reading.html#nowcasting",
+    "href": "reference/further_reading.html#nowcasting",
+    "title": "Further reading",
+    "section": "Nowcasting",
+    "text": "Nowcasting\n\nWolffram et al. (2023) compares the performance of a range of methods that were used in a nowcasting hub and investigates what might explain performance differences.\nLison et al. (2024) develops a generative model for nowcasting and \\(R_t\\) estimation and compares its performance to an approach where the steps for estimating incidence and reproduction number are separated.\nStoner, Economou, and Halliday (2020) contains a nice review of different methods for nowcasting evaluates a range of methods, in addition to introducing a new approach.",
+    "crumbs": [
+      "Further reading"
+    ]
+  },
+  {
+    "objectID": "reference/further_reading.html#forecasting",
+    "href": "reference/further_reading.html#forecasting",
+    "title": "Further reading",
+    "section": "Forecasting",
+    "text": "Forecasting\n\nFunk et al. (2019) evaluates the performance of a forecasting method that combines a mechanistic SEIR model with a random walk prior for the reproduction number.\nHeld, Meyer, and Bracher (2017) makes a compelling argument for the use of probabilistic forecasts and evaluates spatial forecasts based on routine surveillance data.\nLopez et al. (2024) describes the difficulty encountered in making accurate forecasts in COVID-19 cases in the US COVID-19 Forecast Hub.\nAsher (2018) describes model that implements an extension to the random walk with a drift term.\n“CDCgov/Wastewater-Informed-Covid-Forecasting” (2025), code repo for Wastewater-informed COVID-19 forecasting.\nHyndman and Athanasopoulos (2021) is a free online text book on forecasting with a range of time series models and a great resource for finding out more about them.",
+    "crumbs": [
+      "Further reading"
+    ]
+  },
+  {
+    "objectID": "reference/further_reading.html#ensembles",
+    "href": "reference/further_reading.html#ensembles",
+    "title": "Further reading",
+    "section": "Ensembles",
+    "text": "Ensembles\n\nSherratt et al. (2023) investigates the performance of different ensembles in the European COVID-19 Forecast Hub.\nAmaral et al. (2025) discusses the challenges in improving on the predictive performance of simpler approaches using weighted ensembles.",
+    "crumbs": [
+      "Further reading"
+    ]
+  },
+  {
+    "objectID": "reference/further_reading.html#references",
+    "href": "reference/further_reading.html#references",
+    "title": "Further reading",
+    "section": "References",
+    "text": "References\n\n\nAmaral, André Victor Ribeiro, Daniel Wolffram, Paula Moraga, and Johannes Bracher. 2025. “Post-Processing and Weighted Combination of Infectious Disease Nowcasts.” PLoS Computational Biology 21 (3): e1012836. https://doi.org/10.1371/journal.pcbi.1012836.\n\n\nAsher, Jason. 2018. “Forecasting Ebola with a Regression Transmission Model.” Epidemics 22 (March): 50–55. https://doi.org/10.1016/j.epidem.2017.02.009.\n\n\nBrockhaus, Elisabeth K., Daniel Wolffram, Tanja Stadler, Michael Osthege, Tanmay Mitra, Jonas M. Littek, Ekaterina Krymova, et al. 2023. “Why Are Different Estimates of the Effective Reproductive Number so Different? A Case Study on COVID-19 in Germany.” PLOS Computational Biology 19 (11): e1011653. https://doi.org/10.1371/journal.pcbi.1011653.\n\n\n“CDCgov/Wastewater-Informed-Covid-Forecasting.” 2025. Centers for Disease Control and Prevention.\n\n\nCharniga, Kelly, Sang Woo Park, Andrei R. Akhmetzhanov, Anne Cori, Jonathan Dushoff, Sebastian Funk, Katelyn M. Gostic, et al. 2024. “Best Practices for Estimating and Reporting Epidemiological Delay Distributions of Infectious Diseases.” PLOS Computational Biology 20 (10): e1012520. https://doi.org/10.1371/journal.pcbi.1012520.\n\n\nFunk, Sebastian, Anton Camacho, Adam J. Kucharski, Rachel Lowe, Rosalind M. Eggo, and W. John Edmunds. 2019. “Assessing the Performance of Real-Time Epidemic Forecasts: A Case Study of Ebola in the Western Area Region of Sierra Leone, 2014-15.” PLOS Computational Biology 15 (2): e1006785. https://doi.org/10.1371/journal.pcbi.1006785.\n\n\nGostic, Katelyn M., Lauren McGough, Edward B. Baskerville, Sam Abbott, Keya Joshi, Christine Tedijanto, Rebecca Kahn, et al. 2020. “Practical Considerations for Measuring the Effective Reproductive Number, Rt.” PLOS Computational Biology 16 (12): e1008409. https://doi.org/10.1371/journal.pcbi.1008409.\n\n\nHeld, Leonhard, Sebastian Meyer, and Johannes Bracher. 2017. “Probabilistic Forecasting in Infectious Disease Epidemiology: The 13th Armitage Lecture.” Statistics in Medicine 36 (22): 3443–60. https://doi.org/10.1002/sim.7363.\n\n\nHyndman, Rob J, and George Athanasopoulos. 2021. Forecasting: Principles and Practice. 3rd ed. Melbourne, Australia: OTexts.\n\n\nLison, Adrian, Sam Abbott, Jana Huisman, and Tanja Stadler. 2024. “Generative Bayesian Modeling to Nowcast the Effective Reproduction Number from Line List Data with Missing Symptom Onset Dates.” PLOS Computational Biology 20 (4): e1012021. https://doi.org/10.1371/journal.pcbi.1012021.\n\n\nLopez, Velma K., Estee Y. Cramer, Robert Pagano, John M. Drake, Eamon B. O’Dea, Madeline Adee, Turgay Ayer, et al. 2024. “Challenges of COVID-19 Case Forecasting in the US, 2020–2021.” PLOS Computational Biology 20 (5): e1011200. https://doi.org/10.1371/journal.pcbi.1011200.\n\n\nPark, Sang Woo, Andrei R. Akhmetzhanov, Kelly Charniga, Anne Cori, Nicholas G. Davies, Jonathan Dushoff, Sebastian Funk, et al. 2024. “Estimating Epidemiological Delay Distributions for Infectious Diseases.” medRxiv. https://doi.org/10.1101/2024.01.12.24301247.\n\n\nSherratt, Katharine, Hugo Gruson, Rok Grah, Helen Johnson, Rene Niehus, Bastian Prasse, Frank Sandmann, et al. 2023. “Predictive Performance of Multi-Model Ensemble Forecasts of COVID-19 Across European Nations.” Edited by Amy Wesolowski, Neil M Ferguson, Jeffrey L Shaman, and Sen Pei. eLife 12 (April): e81916. https://doi.org/10.7554/eLife.81916.\n\n\nStoner, Oliver, Theo Economou, and Alba Halliday. 2020. “A Powerful Modelling Framework for Nowcasting and Forecasting COVID-19 and Other Diseases.” arXiv. https://doi.org/10.48550/arXiv.1912.05965.\n\n\nWolffram, Daniel, Sam Abbott, Matthias an der Heiden, Sebastian Funk, Felix Günther, Davide Hailer, Stefan Heyder, et al. 2023. “Collaborative Nowcasting of COVID-19 Hospitalization Incidences in Germany.” PLOS Computational Biology 19 (8): e1011394. https://doi.org/10.1371/journal.pcbi.1011394.",
+    "crumbs": [
+      "Further reading"
+    ]
+  },
+  {
+    "objectID": "reference/learning_objectives.html",
+    "href": "reference/learning_objectives.html",
+    "title": "Learning outcomes",
+    "section": "",
+    "text": "The skills and methods taught in this focused EMBL-EBI course apply broadly across infectious disease epidemiology, from outbreak response to routine surveillance of endemic diseases.\nThis half-day course focuses on the core methods for real-time analysis of infectious disease surveillance data, specifically Rt estimation and nowcasting.",
+    "crumbs": [
+      "Learning outcomes"
+    ]
+  },
+  {
+    "objectID": "reference/learning_objectives.html#session-1-r_t-estimation-and-the-renewal-equation",
+    "href": "reference/learning_objectives.html#session-1-r_t-estimation-and-the-renewal-equation",
+    "title": "Learning outcomes",
+    "section": "Session 1: \\(R_t\\) estimation and the renewal equation",
+    "text": "Session 1: \\(R_t\\) estimation and the renewal equation\n\nunderstanding of the reproduction number and challenges in its estimation\nunderstanding of the renewal equation as an epidemiological model for infection generation\nfamiliarity with the generation time as a particular type of delay distribution\nunderstanding of the role of the generative model in the estimation of \\(R_t\\)\nfamiliarity with geometric random walk models for smoothing \\(R_t\\) estimates",
+    "crumbs": [
+      "Learning outcomes"
+    ]
+  },
+  {
+    "objectID": "reference/learning_objectives.html#session-2-nowcasting-concepts",
+    "href": "reference/learning_objectives.html#session-2-nowcasting-concepts",
+    "title": "Learning outcomes",
+    "section": "Session 2: Nowcasting concepts",
+    "text": "Session 2: Nowcasting concepts\n\nunderstanding of nowcasting as a particular right truncation problem\nunderstanding of the difference between report date and event dates\nfamiliarity with simple nowcasting using known delay distributions\nfamiliarity with improving the model of the data generating process with geometric random walk models to improve nowcast performance in some circumstances",
+    "crumbs": [
+      "Learning outcomes"
+    ]
+  },
+  {
+    "objectID": "reference/learning_objectives.html#session-3-joint-nowcasting-with-unknown-delays",
+    "href": "reference/learning_objectives.html#session-3-joint-nowcasting-with-unknown-delays",
+    "title": "Learning outcomes",
+    "section": "Session 3: Joint nowcasting with unknown delays",
+    "text": "Session 3: Joint nowcasting with unknown delays\n\nunderstanding of the reporting triangle structure for epidemiological surveillance data\nunderstanding of the benefits of joint estimation of delay distributions and nowcasts\nunderstanding of population-level modelling with observation error\nunderstanding of the link between Rt estimation and nowcasting",
+    "crumbs": [
+      "Learning outcomes"
+    ]
+  },
+  {
+    "objectID": "reference/learning_objectives.html#technical-skills",
+    "href": "reference/learning_objectives.html#technical-skills",
+    "title": "Learning outcomes",
+    "section": "Technical skills",
+    "text": "Technical skills\n\nfamiliarity with using Stan to estimate parameters of epidemiological models\nfamiliarity with interpreting posterior distributions and quantifying parameter uncertainty\nunderstanding of the role of the generative model in real-time analysis\nfamiliarity with time delays and reporting patterns in epidemiological surveillance data",
+    "crumbs": [
+      "Learning outcomes"
+    ]
+  },
+  {
+    "objectID": "reference/stan.html",
+    "href": "reference/stan.html",
+    "title": "Stan Reference",
+    "section": "",
+    "text": "Uncertainty is an unavoidable part of real-world data\nNeed to estimate unobserved quantities (true cases, the effective reproduction number, future trends)\nBayesian approach naturally handles missing data and incorporates prior knowledge\nStan is a powerful tool for Bayesian inference\n\n\n\nStan is a probabilistic programming language for Bayesian inference. It allows us to:\n\nWrite down models in a text file (ending .stan)\nGenerate samples from the posterior distribution using various methods (like Hamiltonian Monte Carlo)\nGet proper uncertainty quantification for our estimates\n\nWe use Stan because: - We’ll need to estimate things (delays, reproduction numbers, case numbers now and in the future) - We’ll want to correctly specify uncertainty - We’ll want to incorporate our domain expertise - We’ll do this using Bayesian inference",
+    "crumbs": [
+      "Stan Reference"
+    ]
+  },
+  {
+    "objectID": "reference/stan.html#why-stan-in-epidemiology",
+    "href": "reference/stan.html#why-stan-in-epidemiology",
+    "title": "Stan Reference",
+    "section": "",
+    "text": "Uncertainty is an unavoidable part of real-world data\nNeed to estimate unobserved quantities (true cases, the effective reproduction number, future trends)\nBayesian approach naturally handles missing data and incorporates prior knowledge\nStan is a powerful tool for Bayesian inference\n\n\n\nStan is a probabilistic programming language for Bayesian inference. It allows us to:\n\nWrite down models in a text file (ending .stan)\nGenerate samples from the posterior distribution using various methods (like Hamiltonian Monte Carlo)\nGet proper uncertainty quantification for our estimates\n\nWe use Stan because: - We’ll need to estimate things (delays, reproduction numbers, case numbers now and in the future) - We’ll want to correctly specify uncertainty - We’ll want to incorporate our domain expertise - We’ll do this using Bayesian inference",
+    "crumbs": [
+      "Stan Reference"
+    ]
+  },
+  {
+    "objectID": "reference/stan.html#just-enough-probability",
+    "href": "reference/stan.html#just-enough-probability",
+    "title": "Stan Reference",
+    "section": "2. Just Enough Probability",
+    "text": "2. Just Enough Probability\n\nWhat is a Probability Distribution?\nA probability distribution describes how likely different outcomes are for a random variable.\nDiscrete distributions (for countable outcomes): - Example: Number of horse kick deaths per year (0, 1, 2, 3, …) - Poisson distribution with \\(\\lambda\\) = 0.61 kicks per year - Probability of exactly 2 deaths: dpois(2, lambda = 0.61) = 0.11\nContinuous distributions (for measurable quantities): - Example: Temperature in Stockholm tomorrow - Normal distribution with mean 23°C, standard deviation 2°C - Probability density at 30°C: dnorm(30, mean = 23, sd = 2) = 0.0001\n\n\nTwo Key Operations\n\nCalculate probability/density: Given parameters, what’s the probability of observing a value?\nGenerate samples: Given parameters, simulate random observations\n\n\n\nDistributions You’ll See\n\n\n\n\n\n\n\n\n\nDistribution\nUsed for\nParameters\nExample\n\n\n\n\nLog-normal\nDelays (e.g., incubation period)\nmeanlog, sdlog\nSymptom onset time\n\n\nGamma\nDelays (alternative)\nshape, rate\nHospital length of stay\n\n\nNegative Binomial\nCount data with overdispersion\nmu, phi\nDaily case counts\n\n\nNormal\nContinuous measurements\nmean, sd\nLog(Rt)\n\n\nBeta\nProportions\nalpha, beta\nReporting probability\n\n\n\n\n\nKey Concept: Parameters vs Data\n\nData: What we observe (onset dates, test results)\nParameters: What we want to learn (mean delay, Rt)\nModel: How parameters generate data\n\n\n\nBayesian Inference in a Nutshell\nThe generative model can produce output which looks like data given a set of parameters \\(\\theta\\)\nIdea of Bayesian inference: treat \\(\\theta\\) as random variables (with a probability distribution) and condition on data: posterior probability p(\\(\\theta\\) | data) as target of inference.\nUsing Bayes’ rule: \\[p(\\theta | \\text{data}) = \\frac{p(\\text{data} | \\theta) p(\\theta)}{p(\\text{data})}\\]\n\np(data | θ) is the likelihood\np(θ) is the prior\np(data) is a normalisation constant\n\nIn words: (posterior) ∝ (normalised likelihood) × (prior)\n\n\nMCMC: Getting Samples from the Posterior\nMarkov-chain Monte Carlo (MCMC) is a method to generate samples of \\(\\theta\\) that come from the posterior distribution given data. This is our target of inference.\nMany flavours of MCMC exist:\n\nMetropolis-Hastings\nHamiltonian Monte Carlo (what Stan uses)\nGibbs sampling\n\nStan uses the No-U-TURN sampler a form of Hamiltonian Monte Carlo sampler to efficiently explore the posterior distribution and generate samples. This has been shown to be efficient across a wide range of models It’s main limitation is that it doesn’t support discrete latent parameters.",
+    "crumbs": [
+      "Stan Reference"
+    ]
+  },
+  {
+    "objectID": "reference/stan.html#stan-basics-for-this-course",
+    "href": "reference/stan.html#stan-basics-for-this-course",
+    "title": "Stan Reference",
+    "section": "3. Stan Basics for This Course",
+    "text": "3. Stan Basics for This Course\n\nModel Structure\nEvery Stan model has three essential blocks:\n\ndata {\n  // What we observe\n  int&lt;lower=0&gt; N;  // number of observations\n  array[N] real y; // the observations\n}\n\nparameters {\n  // What we want to estimate\n  real&lt;lower=0&gt; mean_delay;\n  real&lt;lower=0&gt; sd_delay;\n}\n\nmodel {\n  // How parameters relate to data\n  // Prior\n  mean_delay ~ normal(5, 2);\n  sd_delay ~ normal(2, 1);\n  \n  // Likelihood\n  y ~ lognormal(log(mean_delay), sd_delay);\n}\n\n\n\nRunning Stan from R\n\nlibrary(cmdstanr)\nlibrary(nfidd)\n\n# Load a model\nmodel &lt;- nfidd_cmdstan_model(\"delays\")\n\n# Prepare data\nstan_data &lt;- list(\n  N = length(observations),\n  y = observations\n)\n\n# Fit model\nfit &lt;- nfidd_sample(model, data = stan_data)\n\n# Extract results\nsummarise_draws(fit)",
+    "crumbs": [
+      "Stan Reference"
+    ]
+  },
+  {
+    "objectID": "reference/stan.html#debugging-tips",
+    "href": "reference/stan.html#debugging-tips",
+    "title": "Stan Reference",
+    "section": "4. Debugging Tips",
+    "text": "4. Debugging Tips\n\nCheck Your Priors\n\nDo your priors make sense?\nWhat range of predictions do they lead to?\nDoes this make sense for the data you’re modelling?\n\nBefore fitting your model, simulate from your priors to check they make sense:\n\n# Example: checking delay priors\nprior_mean_delay &lt;- abs(rnorm(1000, mean = 1.5, sd = 0.5))\nprior_sd_delay &lt;- abs(rnorm(1000, mean = 0.5, sd = 0.1))\n\n# Simulate delays from these priors\nprior_delays &lt;- rlnorm(\n  1000, \n  meanlog = log(prior_mean_delay), \n  sdlog = prior_sd_delay\n)\n\n# Plot to check if reasonable\nhist(prior_delays, breaks = 50)\n\n\n\n\n\n\n\nquantile(prior_delays, c(0.025, 0.5, 0.975))\n\n    2.5%      50%    97.5% \n0.305848 1.420893 4.649426 \n\n\n\n\nCheck your model\n\nDoes your model make sense?\nDoes it have the parameters you expect?\nDoes it have the data you expect?\n\n\n\nCheck your data\n\nDoes your data make sense?\nDoes it have the variables you expect?\nDoes it have the right number of observations?\n\n\n\nCheck your results\n\nDoes your model fit the data?\nDo the parameter estimates make sense?\n\nUse posterior predictive checks to see if your model can reproduce data similar to what you observed: - Does it capture the central tendency of the data? - Does it get the right amount of variability? - Can it reproduce extreme values appropriately?\nCompare your posterior predictions to the observed data using density overlays, empirical CDFs, and summary statistics.\n\n\nCommon Issues & Solutions\n\n\n\n\n\n\n\n\n\nIssue\nSymptom\nWhat\nSolution\n\n\n\n\nDivergent transitions\nWarning message\nSampler can’t explore posterior due to geometry of the posterior\nIncrease adapt_delta\n\n\nTreedepth\nWarning message\nSampler hit maximum tree depth before completing trajectory (complex posterior geometry requires longer integration paths)\nIncrease max_treedepth (e.g., to 12 or 15)\n\n\nLow ESS\nESS &lt; 400\nPoor mixing between chains\nRun more iterations\n\n\nHigh Rhat\nRhat &gt; 1.01\nChains sampling different distributions (not converged)\nCheck model specification or run more warmup iterations\n\n\nInitialization failed\nError on startup\nNumerical instability at start\nSet init values\n\n\n\n\n\nUnderstanding Divergences\nDivergent transitions occur when the sampler encounters regions of the posterior that are difficult to explore. This often happens when:\n\nThe posterior has areas of high curvature\nParameters are on very different scales\nThere are strong correlations between parameters\n\nSolutions:\n\n# Increase adapt_delta (default is 0.8)\nfit &lt;- nfidd_sample(\n  model, \n  data = stan_data,\n  adapt_delta = 0.95  # or even 0.99 for difficult models\n)\n\nor reparameterise your model.",
+    "crumbs": [
+      "Stan Reference"
+    ]
+  },
+  {
+    "objectID": "reference/stan.html#going-deeper",
+    "href": "reference/stan.html#going-deeper",
+    "title": "Stan Reference",
+    "section": "5. Going Deeper",
+    "text": "5. Going Deeper\n\nCourse Models\n\nSee /inst/stan/ for all model code\nEach model has comments explaining the approach\n\n\n\nExternal Resources\n\nStan User’s Guide\nPrior Choice Wiki\nBayesian Workflow\nStan Forums - helpful community",
+    "crumbs": [
+      "Stan Reference"
+    ]
+  },
+  {
+    "objectID": "sessions/R-estimation-and-the-renewal-equation.html",
+    "href": "sessions/R-estimation-and-the-renewal-equation.html",
+    "title": "\\(R_t\\) estimation and the renewal equation",
+    "section": "",
+    "text": "In epidemiology, we need to understand how infections spread through a population over time. Current infections are caused by past infections, and this transmission process forms the foundation of epidemic dynamics. We want to link infections themselves together over time, knowing that current infections were infected by past infections. Correctly capturing this transmission process is crucial to modelling infections in the present and future.\n\n\n\nIntroduction to the reproduction number\n\n\n\n\nThe aim of this session is to introduce the renewal equation as an infection generating process, and to show how it can be used to estimate a time-varying reproduction number.\n\n\n\n\n\n\nSetup\n\n\n\n\n\n\n\nThe source file of this session is located at sessions/R-estimation-and-the-renewal-equation.qmd.\n\n\n\nIn this session we will use the nfidd package to load a data set of infection times and access stan models and helper functions, the dplyr and tidyr packages for data wrangling, ggplot2 library for plotting, the tidybayes package for extracting results of the inference, and the purrr package for functional programming.\n\nlibrary(\"nfidd\")\nlibrary(\"dplyr\")\nlibrary(\"tidyr\")\nlibrary(\"ggplot2\")\nlibrary(\"tidybayes\")\nlibrary(\"purrr\")\n\n\n\n\n\n\n\nTip\n\n\n\nThe best way to interact with the material is via the Visual Editor of RStudio.\n\n\n\n\n\nWe set a random seed for reproducibility. Setting this ensures that you should get exactly the same results on your computer as we do. We also set an option that makes cmdstanr show line numbers when printing model code. This is not strictly necessary but will help us talk about the models.\n\nset.seed(123)\noptions(cmdstanr_print_line_numbers = TRUE)",
+    "crumbs": [
+      "$R_t$ estimation and the renewal equation"
+    ]
+  },
+  {
+    "objectID": "sessions/R-estimation-and-the-renewal-equation.html#slides",
+    "href": "sessions/R-estimation-and-the-renewal-equation.html#slides",
+    "title": "\\(R_t\\) estimation and the renewal equation",
+    "section": "",
+    "text": "Introduction to the reproduction number",
+    "crumbs": [
+      "$R_t$ estimation and the renewal equation"
+    ]
+  },
+  {
+    "objectID": "sessions/R-estimation-and-the-renewal-equation.html#objectives",
+    "href": "sessions/R-estimation-and-the-renewal-equation.html#objectives",
+    "title": "\\(R_t\\) estimation and the renewal equation",
+    "section": "",
+    "text": "The aim of this session is to introduce the renewal equation as an infection generating process, and to show how it can be used to estimate a time-varying reproduction number.\n\n\n\n\n\n\nSetup\n\n\n\n\n\n\n\nThe source file of this session is located at sessions/R-estimation-and-the-renewal-equation.qmd.\n\n\n\nIn this session we will use the nfidd package to load a data set of infection times and access stan models and helper functions, the dplyr and tidyr packages for data wrangling, ggplot2 library for plotting, the tidybayes package for extracting results of the inference, and the purrr package for functional programming.\n\nlibrary(\"nfidd\")\nlibrary(\"dplyr\")\nlibrary(\"tidyr\")\nlibrary(\"ggplot2\")\nlibrary(\"tidybayes\")\nlibrary(\"purrr\")\n\n\n\n\n\n\n\nTip\n\n\n\nThe best way to interact with the material is via the Visual Editor of RStudio.\n\n\n\n\n\nWe set a random seed for reproducibility. Setting this ensures that you should get exactly the same results on your computer as we do. We also set an option that makes cmdstanr show line numbers when printing model code. This is not strictly necessary but will help us talk about the models.\n\nset.seed(123)\noptions(cmdstanr_print_line_numbers = TRUE)",
+    "crumbs": [
+      "$R_t$ estimation and the renewal equation"
+    ]
+  },
+  {
+    "objectID": "sessions/R-estimation-and-the-renewal-equation.html#source-file",
+    "href": "sessions/R-estimation-and-the-renewal-equation.html#source-file",
+    "title": "\\(R_t\\) estimation and the renewal equation",
+    "section": "",
+    "text": "The source file of this session is located at sessions/R-estimation-and-the-renewal-equation.qmd.",
+    "crumbs": [
+      "$R_t$ estimation and the renewal equation"
+    ]
+  },
+  {
+    "objectID": "sessions/R-estimation-and-the-renewal-equation.html#libraries-used",
+    "href": "sessions/R-estimation-and-the-renewal-equation.html#libraries-used",
+    "title": "\\(R_t\\) estimation and the renewal equation",
+    "section": "",
+    "text": "In this session we will use the nfidd package to load a data set of infection times and access stan models and helper functions, the dplyr and tidyr packages for data wrangling, ggplot2 library for plotting, the tidybayes package for extracting results of the inference, and the purrr package for functional programming.\n\nlibrary(\"nfidd\")\nlibrary(\"dplyr\")\nlibrary(\"tidyr\")\nlibrary(\"ggplot2\")\nlibrary(\"tidybayes\")\nlibrary(\"purrr\")\n\n\n\n\n\n\n\nTip\n\n\n\nThe best way to interact with the material is via the Visual Editor of RStudio.",
+    "crumbs": [
+      "$R_t$ estimation and the renewal equation"
+    ]
+  },
+  {
+    "objectID": "sessions/R-estimation-and-the-renewal-equation.html#initialisation",
+    "href": "sessions/R-estimation-and-the-renewal-equation.html#initialisation",
+    "title": "\\(R_t\\) estimation and the renewal equation",
+    "section": "",
+    "text": "We set a random seed for reproducibility. Setting this ensures that you should get exactly the same results on your computer as we do. We also set an option that makes cmdstanr show line numbers when printing model code. This is not strictly necessary but will help us talk about the models.\n\nset.seed(123)\noptions(cmdstanr_print_line_numbers = TRUE)",
+    "crumbs": [
+      "$R_t$ estimation and the renewal equation"
+    ]
+  },
+  {
+    "objectID": "sessions/R-estimation-and-the-renewal-equation.html#simulating-a-geometric-random-walk",
+    "href": "sessions/R-estimation-and-the-renewal-equation.html#simulating-a-geometric-random-walk",
+    "title": "\\(R_t\\) estimation and the renewal equation",
+    "section": "Simulating a geometric random walk",
+    "text": "Simulating a geometric random walk\nYou can have a look at an R function for performing the geometric random walk:\n\ngeometric_random_walk\n\nfunction (init, noise, std) \n{\n    n &lt;- length(noise) + 1\n    x &lt;- numeric(n)\n    x[1] &lt;- log(init)\n    for (i in 2:n) {\n        x[i] &lt;- x[i - 1] + noise[i - 1] * std\n    }\n    exp(x)\n}\n&lt;bytecode: 0x5580bca310b0&gt;\n&lt;environment: namespace:nfidd&gt;\n\n\n\n\n\n\n\n\nTake 2 minutes\n\n\n\nLook at this function and try to understand what it does. Note that we use the fact that we can generate a random normally distributed variable \\(X\\) with mean 0 and standard deviation \\(\\sigma\\) by mutiplying a standard normally distributed variable (i.e., mean 0 and standard deviation 1) \\(Y\\) with \\(\\sigma\\). Using this non-centred parameterisation for efficiency) will improve our computational efficency later when using an equivalent function in stan\n\n\nWe can use this function to simulate a random walk (shown in black below) and compare it to a normal(1,1) prior (shown in red below) that we used in the previous model:\n\nR &lt;- geometric_random_walk(init = 1, noise = rnorm(100), std = 0.1)\ndata &lt;- tibble(t = seq_along(R), R = exp(R))\n\n# Generate normal(1,1) prior samples for comparison\nnormal_prior &lt;- rnorm(100, mean = 1, sd = 1)\nnormal_data &lt;- tibble(t = seq_along(normal_prior), R = normal_prior)\n\nggplot(data, aes(x = t, y = R)) +\n  geom_line() +\n  geom_line(data = normal_data, aes(x = t, y = R), colour = \"red\") +\n  labs(title = \"Simulated data from a random walk model\",\n       subtitle = \"Random walk (black) vs Normal(1,1) prior (red)\",\n       x = \"Time\",\n       y = \"R\")\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nTake 2 minutes\n\n\n\nRepeat this multiple times, either with the same parameters or changing some to get a feeling for what this does compared to the normal(1,1) prior.",
+    "crumbs": [
+      "$R_t$ estimation and the renewal equation"
+    ]
+  },
+  {
+    "objectID": "sessions/R-estimation-and-the-renewal-equation.html#estimating-r_t-with-a-geometric-random-walk-prior",
+    "href": "sessions/R-estimation-and-the-renewal-equation.html#estimating-r_t-with-a-geometric-random-walk-prior",
+    "title": "\\(R_t\\) estimation and the renewal equation",
+    "section": "Estimating \\(R_t\\) with a geometric random walk prior",
+    "text": "Estimating \\(R_t\\) with a geometric random walk prior\nWe can now include this in a stan model,\n\nrw_mod &lt;- nfidd_cmdstan_model(\"estimate-inf-and-r-rw\")\nrw_mod\n\n 1: functions {\n 2:   #include \"functions/convolve_with_delay.stan\"\n 3:   #include \"functions/renewal.stan\"\n 4:   #include \"functions/geometric_random_walk.stan\"\n 5: }\n 6: \n 7: data {\n 8:   int n;                // number of days\n 9:   int I0;              // number initially infected\n10:   array[n] int obs;     // observed symptom onsets\n11:   int gen_time_max;     // maximum generation time\n12:   array[gen_time_max] real gen_time_pmf;  // pmf of generation time distribution\n13:   int&lt;lower = 1&gt; ip_max; // max incubation period\n14:   array[ip_max + 1] real ip_pmf;\n15: }\n16: \n17: parameters {\n18:   real&lt;lower = 0&gt; init_R;         // initial reproduction number\n19:   array[n-1] real rw_noise; // random walk noise\n20:   real&lt;lower = 0&gt; rw_sd; // random walk standard deviation\n21: }\n22: \n23: transformed parameters {\n24:   array[n] real R = geometric_random_walk(init_R, rw_noise, rw_sd);\n25:   array[n] real infections = renewal(I0, R, gen_time_pmf);\n26:   array[n] real onsets = convolve_with_delay(infections, ip_pmf);\n27: }\n28: \n29: model {\n30:   // priors\n31:   init_R ~ normal(1, 0.5) T[0, ];\n32:   rw_noise ~ std_normal();\n33:   rw_sd ~ normal(0, 0.05) T[0, ];\n34:   obs ~ poisson(onsets);\n35: }\n\n\nNote that the model is very similar to the one we used earlier, but with the addition of the random walk model for the reproduction number using a function in stan that does the same as our R function of the same name we defined.\nWe can now generate estimates from this model:\n\ndata &lt;- list(\n  n = length(obs) - 1,\n  obs = obs[-1],\n  I0 = inf_ts$infections[1],\n  gen_time_max = length(gen_time_pmf),\n  gen_time_pmf = gen_time_pmf,\n  ip_max = length(ip_pmf) - 1,\n  ip_pmf = ip_pmf\n)\nr_rw_inf_fit &lt;- nfidd_sample(\n  rw_mod, data = data, max_treedepth = 12, \n  init = \\() list(init_R = 1, rw_sd = 0.01)\n)\n\n\nr_rw_inf_fit\n\n    variable     mean   median   sd  mad       q5      q95 rhat ess_bulk\n lp__        21467.47 21467.52 8.65 8.51 21452.73 21481.08 1.01      802\n init_R          1.62     1.62 0.20 0.19     1.31     1.97 1.00     1372\n rw_noise[1]     0.14     0.14 0.99 1.03    -1.46     1.73 1.00     2310\n rw_noise[2]     0.11     0.08 0.96 0.95    -1.46     1.68 1.00     2283\n rw_noise[3]     0.07     0.11 0.96 0.95    -1.56     1.66 1.00     2107\n rw_noise[4]     0.01     0.01 1.00 1.01    -1.58     1.67 1.00     2649\n rw_noise[5]    -0.02    -0.04 0.99 1.00    -1.64     1.58 1.00     2174\n rw_noise[6]    -0.11    -0.11 1.01 1.00    -1.74     1.53 1.01     2567\n rw_noise[7]    -0.18    -0.16 1.01 1.08    -1.82     1.48 1.00     2337\n rw_noise[8]    -0.16    -0.17 1.00 1.01    -1.79     1.53 1.00     2304\n ess_tail\n     1155\n     1370\n     1508\n     1404\n     1760\n     1678\n     1618\n     1184\n     1583\n     1214\n\n # showing 10 of 566 rows (change via 'max_rows' argument or 'cmdstanr_max_rows' option)\n\n\n\nAs this is a more complex model we have increased the max_treedepth parameter to 12 to allow for more complex posterior distributions and we have also provided an initialisation for the init_R and rw_sd parameters to help the sampler find the right region of parameter space. This is a common technique when fitting more complex models and is needed as it is hard a priori to know where the sampler should start.\n\nWe can again extract and visualise the posteriors in the same way as earlier.\n\nrw_posteriors &lt;- r_rw_inf_fit |&gt;\n  gather_draws(infections[infection_day], R[infection_day]) |&gt;\n  ungroup() |&gt;\n  mutate(infection_day = infection_day - 1) |&gt;\n  filter(.draw %in% sample(.draw, 100))\n\n\nrw_inf_posterior &lt;- rw_posteriors |&gt;\n  filter(.variable == \"infections\")\nggplot(mapping = aes(x = infection_day)) +\n  geom_line(\n    data = rw_inf_posterior, mapping = aes(y = .value, group = .draw), alpha = 0.1\n  ) +\n  geom_line(data = inf_ts, mapping = aes(y = infections), colour = \"red\") +\n  labs(title = \"Infections, estimated (grey) and observed (red)\", \n       subtitle = \"Model 3: renewal equation with random walk\")\n\n\n\n\n\n\n\n\nand reproduction numbers\n\nrw_r_inf_posterior &lt;- rw_posteriors |&gt;\n  filter(.variable == \"R\") |&gt;\n  filter(.draw %in% sample(.draw, 100))\nggplot(\n  data = rw_r_inf_posterior,\n  mapping = aes(x = infection_day, y = .value, group = .draw)\n) +\n  geom_line(alpha = 0.1) +\n  labs(title = \"Estimated R\", \n       subtitle = \"Model 3: renewal equation with random walk\")\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nTake 2 minutes\n\n\n\nWhat do you think of these estimates? In particular, what do you think of the estimates at the beginning and end of the outbreak? Are they consistent with the true Rt trajectory and with each other? Are they consistent with the estimates from the previous model?\n\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\nThe estimates are smoothest so far, and the model is able to capture the true Rt trajectory more accurately than the previous model. Unlike the previous model, the model is able to capture the true Rt trajectory at the end of the outbreak with variance increasing towards the date of estimation. The infection estimates are the least uncertain from any model and potentially overly certain as they don’t fully cover the observed infections.",
+    "crumbs": [
+      "$R_t$ estimation and the renewal equation"
+    ]
+  },
+  {
+    "objectID": "sessions/R-estimation-and-the-renewal-equation.html#comparing-the-models",
+    "href": "sessions/R-estimation-and-the-renewal-equation.html#comparing-the-models",
+    "title": "\\(R_t\\) estimation and the renewal equation",
+    "section": "Comparing the models",
+    "text": "Comparing the models\nWe can now plot all the Rt trajectories from the models together to compare them.\n\n## earlier posteriors\nr_posterior &lt;- r_posterior |&gt;\n  mutate(data = \"infections\")\nr_inf_posterior &lt;- r_inf_posterior |&gt;\n  mutate(data = \"onsets (normal)\")\nrw_r_inf_posterior &lt;- rw_r_inf_posterior |&gt;\n  mutate(data = \"onsets (random walk)\")\n\nall_posteriors &lt;- rbind(\n  r_inf_posterior,\n  rw_r_inf_posterior,\n  r_posterior\n)\n\nggplot(\n  all_posteriors,\n  mapping = aes(x = infection_day, y = .value, group = .draw,\n                colour = data)\n) +\n  geom_line(alpha = 0.1) +\n  scale_fill_brewer(palette = \"Set1\") +\n  labs(\n    title = \"Rt estimates from renewal equation models\",\n    subtitle = paste(\n      \"Estimates from infections, from symptom onsets, and from onsets with a\",\n      \"random walk\"\n    )\n  ) +\n  guides(colour = guide_legend(override.aes = list(alpha = 1))) + \n  theme(legend.position = \"bottom\")\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nTake 2 minutes\n\n\n\nRevisit your answers to the previous questions in this session. What are the key differences between the Rt estimates from the models? Which model do you think is the best fit for the data? Which model is the most realistic?\n\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\nWe can see that the estimates are smoother when using the random walk model for the reproduction number, compared to the normal model. The model that fits directly to infections has the lowest uncertainty, which we would expect as it doesn’t have to infer the number of infections from symptom onsets but even here the reproduction number estimates are unrealistically noisy due to the assumption of independence between infections each day when infection counts are low. The random walk model is the most realistic model, as it is able to capture the true Rt trajectory more accurately than the normal model. The model that fits directly to infections is the best fit for the data, but depends on the availability of infections data which in practice is never available.\n\n\n\n\n\n\n\n\n\nTake 2 minutes\n\n\n\nCompare the results across the different models used in this session. How do the models vary in the number of parameters that need to be estimated? How do the assumptions about the infections time series differ between the models? What do you notice about the level of uncertainty in the estimates of infections and \\(R_t\\) over the course of the time series?\n\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\nWe can see that using the renewal model as generative model we recover the time series of infections more accurately compared to previously when we assumed independent numbers of infections each day and that using a more believable model (i.e the geometric random walk) for the reproduction number improves things even more. Of course, this is helped by the fact that the data was generated by a model similar to the renewal model used for inference.",
+    "crumbs": [
+      "$R_t$ estimation and the renewal equation"
+    ]
+  },
+  {
+    "objectID": "sessions/R-estimation-and-the-renewal-equation.html#challenge",
+    "href": "sessions/R-estimation-and-the-renewal-equation.html#challenge",
+    "title": "\\(R_t\\) estimation and the renewal equation",
+    "section": "Challenge",
+    "text": "Challenge\n\nWe have used symptom onsets under the assumption that every infected person develops symptoms. Earlier we also created a time series of hospitalisation under the assumption that only a proportion (e.g., 30%) of symptomatic individuals get hospitalised. How would you change the model in this case? What are the implications for inference?\nIf you have time you could try re-running the experiment with different \\(R_t\\) trajectories (using the renewal() function to simulate data) and delay distributions to see whether results change.",
+    "crumbs": [
+      "$R_t$ estimation and the renewal equation"
+    ]
+  },
+  {
+    "objectID": "sessions/R-estimation-and-the-renewal-equation.html#methods-in-practice",
+    "href": "sessions/R-estimation-and-the-renewal-equation.html#methods-in-practice",
+    "title": "\\(R_t\\) estimation and the renewal equation",
+    "section": "Methods in practice",
+    "text": "Methods in practice\n\nEpiEstim provides a range of accessible tools for estimating \\(R_t\\), using a simpler approach than the model we have used here.\nEpiNow2 (Abbott et al. 2025) package again implements a range of models similar to the model we have used here.\nEpidemia Bhatt et al. (2020) implements a regression model approach to \\(R_t\\) estimation.\nIn this course we focused on the instantaneous reproduction number. An alternative is the case reproduction number implemented in Wallinga and Teunis (2004).\nWe face many choices when estimating the reproduction number. Brockhaus et al. (2023) explores the impact of these choices on resulting estimates.\nGostic et al. (2020) has further guidance on best practice.",
+    "crumbs": [
+      "$R_t$ estimation and the renewal equation"
+    ]
+  },
+  {
+    "objectID": "sessions/R-estimation-and-the-renewal-equation.html#references",
+    "href": "sessions/R-estimation-and-the-renewal-equation.html#references",
+    "title": "\\(R_t\\) estimation and the renewal equation",
+    "section": "References",
+    "text": "References\n\n\nAbbott, Sam, Joel Hellewell, Katharine Sherratt, Katelyn Gostic, Joe Hickson, Hamada S. Badr, Michael DeWitt, James M. Azam, EpiForecasts, and Sebastian Funk. 2025. “EpiNow2: Estimate Real-Time Case Counts and Time-Varying Epidemiological Parameters.”\n\n\nBhatt, Samir, Neil Ferguson, Seth Flaxman, Axel Gandy, Swapnil Mishra, and James A. Scott. 2020. “Semi-Mechanistic Bayesian Modeling of COVID-19 with Renewal Processes.” arXiv. https://doi.org/10.48550/arXiv.2012.00394.\n\n\nBrockhaus, Elisabeth K., Daniel Wolffram, Tanja Stadler, Michael Osthege, Tanmay Mitra, Jonas M. Littek, Ekaterina Krymova, et al. 2023. “Why Are Different Estimates of the Effective Reproductive Number so Different? A Case Study on COVID-19 in Germany.” PLOS Computational Biology 19 (11): e1011653. https://doi.org/10.1371/journal.pcbi.1011653.\n\n\nGostic, Katelyn M., Lauren McGough, Edward B. Baskerville, Sam Abbott, Keya Joshi, Christine Tedijanto, Rebecca Kahn, et al. 2020. “Practical Considerations for Measuring the Effective Reproductive Number, Rt.” PLOS Computational Biology 16 (12): e1008409. https://doi.org/10.1371/journal.pcbi.1008409.\n\n\nWallinga, Jacco, and Peter Teunis. 2004. “Different Epidemic Curves for Severe Acute Respiratory Syndrome Reveal Similar Impacts of Control Measures.” American Journal of Epidemiology 160 (6): 509–16. https://doi.org/10.1093/aje/kwh255.",
+    "crumbs": [
+      "$R_t$ estimation and the renewal equation"
+    ]
+  },
+  {
+    "objectID": "sessions/joint-nowcasting.html",
+    "href": "sessions/joint-nowcasting.html",
+    "title": "Nowcasting with an unknown reporting delay",
+    "section": "",
+    "text": "In the last session we introduced the idea of nowcasting using a simple model. However, this approach had problems: we didn’t fully account for uncertainty, or for example observation error in the primary events, and it’s not a fully generative model of the data reporting process. And as we saw, if we get the delay distribution wrong, we can get the nowcast very wrong.\nA better approach is to jointly estimate the delay distribution together with the nowcast. We can do this by using information from multiple snapshots of the data as it changes over time (using a data structure called the “reporting triangle”). In this session, we’ll introduce this approach to joint estimation in nowcasting. At the end we’ll then demonstrate a way to combine this with our previous work estimating the reproduction number, steadily improving our real time outbreak model.\n\n\n\nIntroduction to joint estimation of delays and nowcasts\n\n\n\n\nThis session aims to introduce how to do nowcasting if the reporting delay distribution is unknown.\n\n\n\n\n\n\nSetup\n\n\n\n\n\n\n\nThe source file of this session is located at sessions/joint-nowcasting.qmd.\n\n\n\nIn this session we will use the nfidd package to load a data set of infection times and access stan models and helper functions, the dplyr and tidyr packages for data wrangling, ggplot2 library for plotting, and the tidybayes package for extracting results of the inference.\n\nlibrary(\"nfidd\")\nlibrary(\"dplyr\")\nlibrary(\"tidyr\")\nlibrary(\"ggplot2\")\nlibrary(\"tidybayes\")\n\n\n\n\n\n\n\nTip\n\n\n\nThe best way to interact with the material is via the Visual Editor of RStudio.\n\n\n\n\n\nWe set a random seed for reproducibility. Setting this ensures that you should get exactly the same results on your computer as we do. We also set an option that makes cmdstanr show line numbers when printing model code. This is not strictly necessary but will help us talk about the models. Finally, we set an option to not warn about the partial definition of initial conditions.\n\nset.seed(123)\noptions(cmdstanr_print_line_numbers = TRUE)\noptions(cmdstanr_warn_inits = FALSE)",
+    "crumbs": [
+      "Nowcasting with an unknown reporting delay"
+    ]
+  },
+  {
+    "objectID": "sessions/joint-nowcasting.html#slides",
+    "href": "sessions/joint-nowcasting.html#slides",
+    "title": "Nowcasting with an unknown reporting delay",
+    "section": "",
+    "text": "Introduction to joint estimation of delays and nowcasts",
+    "crumbs": [
+      "Nowcasting with an unknown reporting delay"
+    ]
+  },
+  {
+    "objectID": "sessions/joint-nowcasting.html#objectives",
+    "href": "sessions/joint-nowcasting.html#objectives",
+    "title": "Nowcasting with an unknown reporting delay",
+    "section": "",
+    "text": "This session aims to introduce how to do nowcasting if the reporting delay distribution is unknown.\n\n\n\n\n\n\nSetup\n\n\n\n\n\n\n\nThe source file of this session is located at sessions/joint-nowcasting.qmd.\n\n\n\nIn this session we will use the nfidd package to load a data set of infection times and access stan models and helper functions, the dplyr and tidyr packages for data wrangling, ggplot2 library for plotting, and the tidybayes package for extracting results of the inference.\n\nlibrary(\"nfidd\")\nlibrary(\"dplyr\")\nlibrary(\"tidyr\")\nlibrary(\"ggplot2\")\nlibrary(\"tidybayes\")\n\n\n\n\n\n\n\nTip\n\n\n\nThe best way to interact with the material is via the Visual Editor of RStudio.\n\n\n\n\n\nWe set a random seed for reproducibility. Setting this ensures that you should get exactly the same results on your computer as we do. We also set an option that makes cmdstanr show line numbers when printing model code. This is not strictly necessary but will help us talk about the models. Finally, we set an option to not warn about the partial definition of initial conditions.\n\nset.seed(123)\noptions(cmdstanr_print_line_numbers = TRUE)\noptions(cmdstanr_warn_inits = FALSE)",
+    "crumbs": [
+      "Nowcasting with an unknown reporting delay"
+    ]
+  },
+  {
+    "objectID": "sessions/joint-nowcasting.html#source-file",
+    "href": "sessions/joint-nowcasting.html#source-file",
+    "title": "Nowcasting with an unknown reporting delay",
+    "section": "",
+    "text": "The source file of this session is located at sessions/joint-nowcasting.qmd.",
+    "crumbs": [
+      "Nowcasting with an unknown reporting delay"
+    ]
+  },
+  {
+    "objectID": "sessions/joint-nowcasting.html#libraries-used",
+    "href": "sessions/joint-nowcasting.html#libraries-used",
+    "title": "Nowcasting with an unknown reporting delay",
+    "section": "",
+    "text": "In this session we will use the nfidd package to load a data set of infection times and access stan models and helper functions, the dplyr and tidyr packages for data wrangling, ggplot2 library for plotting, and the tidybayes package for extracting results of the inference.\n\nlibrary(\"nfidd\")\nlibrary(\"dplyr\")\nlibrary(\"tidyr\")\nlibrary(\"ggplot2\")\nlibrary(\"tidybayes\")\n\n\n\n\n\n\n\nTip\n\n\n\nThe best way to interact with the material is via the Visual Editor of RStudio.",
+    "crumbs": [
+      "Nowcasting with an unknown reporting delay"
+    ]
+  },
+  {
+    "objectID": "sessions/joint-nowcasting.html#initialisation",
+    "href": "sessions/joint-nowcasting.html#initialisation",
+    "title": "Nowcasting with an unknown reporting delay",
+    "section": "",
+    "text": "We set a random seed for reproducibility. Setting this ensures that you should get exactly the same results on your computer as we do. We also set an option that makes cmdstanr show line numbers when printing model code. This is not strictly necessary but will help us talk about the models. Finally, we set an option to not warn about the partial definition of initial conditions.\n\nset.seed(123)\noptions(cmdstanr_print_line_numbers = TRUE)\noptions(cmdstanr_warn_inits = FALSE)",
+    "crumbs": [
+      "Nowcasting with an unknown reporting delay"
+    ]
+  },
+  {
+    "objectID": "sessions/joint-nowcasting.html#motivation",
+    "href": "sessions/joint-nowcasting.html#motivation",
+    "title": "Nowcasting with an unknown reporting delay",
+    "section": "Motivation",
+    "text": "Motivation\nSo far we have assumed that the delay distribution is known. In practice, this is often not the case and we need to estimate it from the data. This can be done using individual data and then passing this estimate to a simple nowcasting model. However, this has the disadvantage that the nowcasting model does not take into account the uncertainty in the delay distribution or observation error of the primary events (and potentially some other issues we will cover in this session).\nIn the nowcasting concepts session we also saw that getting the delay distribution wrong can lead to very poor nowcasts.\nA better approach is to jointly estimate the delay distribution together with the nowcast. This builds on the data simulation approach we used in the concepts session, but now we model the entire process at the population level with observation error.",
+    "crumbs": [
+      "Nowcasting with an unknown reporting delay"
+    ]
+  },
+  {
+    "objectID": "sessions/joint-nowcasting.html#extending-our-data-simulation-approach",
+    "href": "sessions/joint-nowcasting.html#extending-our-data-simulation-approach",
+    "title": "Nowcasting with an unknown reporting delay",
+    "section": "Extending our data simulation approach",
+    "text": "Extending our data simulation approach\nRecall from the nowcasting concepts session that we simulated individual reporting delays and then aggregated them. Now we’ll simulate the same process but at the population level with observation error. This approach allows us to properly model uncertainty whilst capturing the generative process of epidemic data.\nFirst, let’s generate our simulated onset dataset as before:\n\ngen_time_pmf &lt;- make_gen_time_pmf()\nip_pmf &lt;- make_ip_pmf()\nonset_df &lt;- simulate_onsets(\n  make_daily_infections(infection_times), gen_time_pmf, ip_pmf\n)\nhead(onset_df)\n\n# A tibble: 6 × 3\n    day onsets infections\n  &lt;dbl&gt;  &lt;int&gt;      &lt;int&gt;\n1     1      0          0\n2     2      0          1\n3     3      0          0\n4     4      1          2\n5     5      0          1\n6     6      0          1\n\ncutoff &lt;- 71\n\nWe then need to simulate the reporting delays:\n\nreporting_delay_pmf &lt;- censored_delay_pmf(\n  rlnorm, max = 15, meanlog = 1, sdlog = 0.5\n)\nplot(reporting_delay_pmf)\n\n\n\n\n\n\n\n\nWe can then simulate the data by day, onset day, and reporting day by applying the reporting delay distribution to the onsets (notice how this is nearly identical to the convolution pattern we’ve seen before except that we are not applying the sum):\n\nreporting_triangle &lt;- onset_df |&gt;\n  filter(day &lt; cutoff) |&gt;\n  mutate(\n    reporting_delay = list(\n      tibble(d = 0:15, reporting_delay = reporting_delay_pmf)\n    )\n  ) |&gt;\n  unnest(reporting_delay) |&gt;\n  mutate(\n    reported_onsets = rpois(n(), onsets * reporting_delay)\n  ) |&gt;\n  mutate(reported_day = day + d)\n\ntail(reporting_triangle)\n\n# A tibble: 6 × 7\n    day onsets infections     d reporting_delay reported_onsets reported_day\n  &lt;dbl&gt;  &lt;int&gt;      &lt;int&gt; &lt;int&gt; &lt;table[1d]&gt;               &lt;int&gt;        &lt;dbl&gt;\n1    70     76        115    10 0.0028236523                  0           80\n2    70     76        115    11 0.0014853431                  0           81\n3    70     76        115    12 0.0007961839                  0           82\n4    70     76        115    13 0.0004601063                  0           83\n5    70     76        115    14 0.0002700624                  0           84\n6    70     76        115    15 0.0001920444                  0           85\n\n\nWe also apply the Poisson observation error to the reported onsets to capture our uncertainty in the reporting process (remember we have lost uncertainty in the onsets as we are not individually simulating the reporting delays).\nTo recover the onsets onsets by day we group by day and then sum reported onsets across report days.\n\nnoisy_onsets_df &lt;- reporting_triangle |&gt;\n  summarise(noisy_onsets = sum(reported_onsets), .by = day)\n\ntail(noisy_onsets_df)\n\n# A tibble: 6 × 2\n    day noisy_onsets\n  &lt;dbl&gt;        &lt;int&gt;\n1    65           66\n2    66           77\n3    67           71\n4    68           84\n5    69           84\n6    70           81\n\n\nAs we only observed reported cases up to the current day we need to filter it to only include the data we have observed:\n\nfiltered_reporting_triangle &lt;- reporting_triangle |&gt;\n  filter(reported_day &lt;= max(day))\n\ntail(noisy_onsets_df)\n\n# A tibble: 6 × 2\n    day noisy_onsets\n  &lt;dbl&gt;        &lt;int&gt;\n1    65           66\n2    66           77\n3    67           71\n4    68           84\n5    69           84\n6    70           81\n\n\nFinally, we sum this to get the counts we actually observe. This is the same as the date we corrected for right truncation in the nowcasting concepts session.\n\navailable_onsets &lt;- filtered_reporting_triangle |&gt;\n  summarise(available_onsets = sum(reported_onsets), .by = day)\n\ntail(available_onsets)\n\n# A tibble: 6 × 2\n    day available_onsets\n  &lt;dbl&gt;            &lt;int&gt;\n1    65               61\n2    66               67\n3    67               44\n4    68               32\n5    69               14\n6    70                0",
+    "crumbs": [
+      "Nowcasting with an unknown reporting delay"
+    ]
+  },
+  {
+    "objectID": "sessions/joint-nowcasting.html#understanding-the-data-structure",
+    "href": "sessions/joint-nowcasting.html#understanding-the-data-structure",
+    "title": "Nowcasting with an unknown reporting delay",
+    "section": "Understanding the data structure",
+    "text": "Understanding the data structure\nNotice how this simulation creates a similar, but different, data structure than in the concepts session.\n\n\n\n\n\n\nThree-dimensional epidemiological data\n\n\n\nSo far we’ve worked with data that has two dimensions. Such as:\n\nOnset day: when symptoms began\nOnset counts: the number of cases that occurred on each day\n\nNow we are introducing a third dimension:\n\nReport day: when the case enters our surveillance system\n\nThis means that to recover the true onset counts we need to sum across the third dimension and we may not be able to do this if all the data has not been reported yet (i.e. we have right truncation in our data). This is just a reformulation of the nowcasting problem we saw in the nowcasting concepts session.\n\n\nThis richer data structure contains information about both the delay distribution and the final expected counts so we can use it to jointly estimate both which was not possible with the simpler data structure we used in the nowcasting concepts session.",
+    "crumbs": [
+      "Nowcasting with an unknown reporting delay"
+    ]
+  },
+  {
+    "objectID": "sessions/joint-nowcasting.html#mathematical-formulation",
+    "href": "sessions/joint-nowcasting.html#mathematical-formulation",
+    "title": "Nowcasting with an unknown reporting delay",
+    "section": "Mathematical formulation",
+    "text": "Mathematical formulation\nWe can formalise this process mathematically. The total number of onsets on day \\(t\\) is: \\[\nN_{t} = \\sum_{d=0}^{D} n_{t,d}\n\\]\nwhere \\(n_{t,d}\\) is the number of onsets on day \\(t\\) that are reported on day \\(t+d\\), and \\(D\\) is the maximum delay.\nWe model each component as: \\[\n  n_{t,d} \\mid \\lambda_{t},p_{t,d} \\sim \\text{Poisson} \\left(\\lambda_{t} \\times p_{t,d} \\right),\\ t=1,...,T.\n\\]\nwhere:\n\n\\(\\lambda_{t}\\) is the expected number of onsets on day \\(t\\)\n\\(p_{t,d}\\) is the probability that an onset on day \\(t\\) is reported on day \\(t+d\\)\n\nThis approach jointly estimates the delay distribution (\\(p_{t,d}\\)) and the underlying onset counts (\\(\\lambda_{t}\\)) from the observed data.\n\n\n\n\n\n\nModelling options\n\n\n\nWe now have two main modelling options:\n\nHow we model the expected number of onsets \\(\\lambda_{t}\\)\nHow we model the probability of reporting \\(p_{t,d}\\)\n\nWe will explore these in the next section.\n\n\nA key insight is that we can split each \\(n_{t,d}\\) into observed and unobserved components:\n\\[n_{t,d} = n_{t,d}^{obs} + n_{t,d}^{miss}\\]\nwhere:\n\n\\(n_{t,d}^{obs}\\) is what we observe (when \\(t+d \\leq\\) current day)\n\\(n_{t,d}^{miss}\\) is what we need to estimate (when \\(t+d &gt;\\) current day)\n\nThe joint model uses the observed data to estimate both the delay distribution and the underlying onset counts, which then allows us to predict the missing entries.\n\n\n\n\n\n\nThe reporting triangle\n\n\n\n\n\nThis data structure is sometimes called the “reporting triangle” in the literature because when visualised as a matrix (with onset days as rows and reporting days as columns), the observed data (\\(n_{t,d}^{obs}\\)) creates a triangular shape.\n\n\n\nReporting triangle visualisation (by Johannes Bracher)\n\n\nNowcasting aims to complete this triangle by estimating the missing entries (\\(n_{t,d}^{miss}\\)).\n\n\n\nCompleted reporting triangle (by Johannes Bracher)\n\n\nOnce completed, we sum across the rows to get our nowcast of the true onset counts.",
+    "crumbs": [
+      "Nowcasting with an unknown reporting delay"
+    ]
+  },
+  {
+    "objectID": "sessions/joint-nowcasting.html#fitting-the-joint-model",
+    "href": "sessions/joint-nowcasting.html#fitting-the-joint-model",
+    "title": "Nowcasting with an unknown reporting delay",
+    "section": "Fitting the joint model",
+    "text": "Fitting the joint model\nFor fitting the joint model specification follows our data simulation approach but we have to make choices about how to model the expected number of onsets \\(\\lambda_{t}\\) and the probability of reporting \\(p_{t,d}\\).\nAs usual, we start by loading the model:\n\njoint_mod &lt;- nfidd_cmdstan_model(\"joint-nowcast\")\njoint_mod\n\n 1: functions {\n 2:   #include \"functions/geometric_random_walk.stan\"\n 3:   #include \"functions/observe_onsets_with_delay.stan\"\n 4:   #include \"functions/combine_obs_with_predicted_obs_rng.stan\"\n 5: }\n 6: \n 7: data {\n 8:   int n;                // number of days\n 9:   int m;                // number of reports\n10:   array[n] int p;       // number of observations per day\n11:   array[m] int obs;     // observed symptom onsets\n12:   int d;                // number of reporting delays\n13: }\n14: \n15: transformed data{\n16:   array[n] int P = to_int(cumulative_sum(p));\n17:   array[n] int D = to_int(cumulative_sum(rep_array(d, n)));\n18: }\n19: \n20: parameters {\n21:   real&lt;lower=0&gt; init_onsets;\n22:   array[n-1] real rw_noise;\n23:   real&lt;lower=0&gt; rw_sd;\n24:   simplex[d] reporting_delay; // reporting delay distribution\n25: }\n26: \n27: transformed parameters {\n28:   array[n] real onsets = geometric_random_walk(init_onsets, rw_noise, rw_sd);\n29:   array[m] real onsets_by_report = observe_onsets_with_delay(onsets, reporting_delay, P, p);\n30: }\n31: \n32: model {\n33:   // Prior\n34:   init_onsets ~ normal(1, 5) T[0,];\n35:   rw_noise ~ std_normal();\n36:   rw_sd ~ normal(0, 0.05) T[0,];\n37:   reporting_delay ~ dirichlet(rep_vector(1, d));\n38:   // Likelihood\n39:   obs ~ poisson(onsets_by_report);\n40: }\n41: \n42: generated quantities {\n43:   array[d*n] real complete_onsets_by_report = observe_onsets_with_delay(onsets, reporting_delay, D, rep_array(d, n));\n44:   array[n] int nowcast = combine_obs_with_predicted_obs_rng(obs, complete_onsets_by_report, P, p, d, D);\n45: }\n46: \n\n\n\n\n\n\n\n\nModel details\n\n\n\n\n\nThis time we won’t go into details of the model. For now, it is important that you understand the concept, but as the models get more complex, we hope that you trust us that the model does what we describe above.\nOne thing to note is that we are now fitting the initial number of symptom onsets (init_onsets). This is different from earlier when we had to pass the initial number of infections (I0) as data. In most situations, this number would be unknown, so what we do here is closer to what one would do in the real world.\n\n\n\n\n\n\n\n\n\nTake two minutes\n\n\n\nWhat are the models we have picked for the onsets (\\(\\lambda_{t}\\)) and the reporting delay distribution (\\(p_{t,d}\\))?\n\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\n\\(\\lambda_{t}\\) is modelled using a geometric random walk.\n\\(p_{t,d}\\) is modelled using a Dirichlet distribution (i.e. a multinomial distribution with a constraint that the sum of the probabilities is 1 - this allows the delay distribution to be flexible).\n\n\n\n\nWe then fit it to data:\n\njoint_data &lt;- list(\n  n = length(unique(filtered_reporting_triangle$day)), # number of days\n  m = nrow(filtered_reporting_triangle),               # number of reports\n  p = filtered_reporting_triangle |&gt;\n   group_by(day) |&gt;\n   filter(d == max(d)) |&gt;\n   mutate(d = d + 1) |&gt;\n   pull(d),            # number of observations per day\n  obs = filtered_reporting_triangle$reported_onsets,   # observed symptom onsets\n  d = 16               # number of reporting delays\n)\njoint_nowcast_fit &lt;- nfidd_sample(joint_mod, data = joint_data)\n\n\njoint_nowcast_fit\n\n    variable   mean median   sd  mad     q5    q95 rhat ess_bulk ess_tail\n lp__        528.30 528.79 7.02 6.72 516.25 539.14 1.00      721     1063\n init_onsets   0.76   0.71 0.30 0.29   0.35   1.31 1.00     2765     1513\n rw_noise[1]  -0.07  -0.10 1.01 1.01  -1.71   1.64 1.00     2833     1419\n rw_noise[2]   0.05   0.05 0.99 0.96  -1.62   1.70 1.00     4161     1377\n rw_noise[3]   0.21   0.23 0.94 0.95  -1.31   1.74 1.00     3223     1394\n rw_noise[4]   0.22   0.21 1.00 1.01  -1.45   1.90 1.00     3594     1340\n rw_noise[5]   0.33   0.34 0.98 1.01  -1.27   1.91 1.00     3543     1340\n rw_noise[6]   0.46   0.48 0.95 0.97  -1.07   2.01 1.00     3442     1417\n rw_noise[7]   0.09   0.09 0.96 0.96  -1.45   1.68 1.00     3676     1273\n rw_noise[8]  -0.24  -0.23 0.95 0.96  -1.78   1.34 1.01     3133     1619\n\n # showing 10 of 2348 rows (change via 'max_rows' argument or 'cmdstanr_max_rows' option)\n\n\n\n\n\n\n\n\nImportant\n\n\n\nOne benefit of this model is that, because we have decomposed the data into the reporting triangle, we can make a nowcast that uses the data we have available, augmented with predictions from the model. This should give us more accurate uncertainty estimates than the simple nowcasting models above (see stan/functions/combine_obs_with_predicted_obs_rng.stan but note the code is fairly involved).\n\n\nWe now extract this nowcast:\n\njoint_nowcast_onsets &lt;- joint_nowcast_fit |&gt;\n  gather_draws(nowcast[day]) |&gt;\n  ungroup() |&gt;\n  filter(.draw %in% sample(.draw, 100))\n\nFinally, we can plot the nowcast alongside the observed data:\n\nggplot(joint_nowcast_onsets, aes(x = day)) +\n  geom_col(\n    data = noisy_onsets_df, mapping = aes(y = noisy_onsets), alpha = 0.6\n  ) +\n  geom_line(mapping = aes(y = .value, group = .draw), alpha = 0.1) +\n  geom_point(data = available_onsets, mapping = aes(y = available_onsets))\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nTip\n\n\n\nReminder: The points in this plot represent the data available when the nowcast was made (and so are truncated) whilst the bars represent the finally reported data (a perfect nowcast would exactly reproduce these).\n\n\n\n\n\n\n\n\nTake 5 minutes\n\n\n\nLook back at the last three nowcasts. How do they compare? What are the advantages and disadvantages of each? Could we improve the nowcasts further?\n\n\n\n\n\n\n\n\nSolution\n\n\n\n\n\n\nThe simple nowcast struggled to capture the generative process of the data and so produced poor nowcasts. The nowcast with the geometric random walk was better but still struggled to capture the generative process of the data. The joint nowcast was the best of the three as it properly handled the uncertainty and allowed us to fit the delay distribution versus relying on known delays.\nHowever, the joint nowcast is still quite simple (in the sense that no detailed mechanism or reporting process is being modelled) and so may struggle to capture more complex patterns in the data. In particular, the prior model for the geometric random walk assumes that onsets are the same as the previous day with some statistical noise. This may not be a good assumption in a rapidly changing epidemic (where the reproduction number is not near 1).\nIn addition, whilst we say it is “quite simple” as should be clear from the code, it is quite complex and computationally intensive. This is because we are fitting a model to the reporting triangle, which is a much larger data set and so the model is relatively quite slow to fit.",
+    "crumbs": [
+      "Nowcasting with an unknown reporting delay"
+    ]
+  },
+  {
+    "objectID": "sessions/joint-nowcasting.html#challenge",
+    "href": "sessions/joint-nowcasting.html#challenge",
+    "title": "Nowcasting with an unknown reporting delay",
+    "section": "Challenge",
+    "text": "Challenge\n\nThe simple nowcast models we showed here assumed perfect knowledge of the delay distribution. What happens when you instead use an estimate of the delay distribution from the data? Try estimating the delay distribution from aggregated surveillance data and see how uncertainty in this estimate affects the simple nowcast models.\nDespite being fairly involved, the joint nowcast model we used here is still quite simple and may struggle to capture more complex patterns in the data.",
+    "crumbs": [
+      "Nowcasting with an unknown reporting delay"
+    ]
+  },
+  {
+    "objectID": "sessions/joint-nowcasting.html#methods-in-practice",
+    "href": "sessions/joint-nowcasting.html#methods-in-practice",
+    "title": "Nowcasting with an unknown reporting delay",
+    "section": "Methods in practice",
+    "text": "Methods in practice\nIn practice, more complex methods are often needed to account for structure in the reporting process, time-varying delay distributions, or delays that vary by other factors (such as the age of cases). Consider how nowcasting approaches might differ in non-outbreak settings: What additional factors might you need to account for when applying these methods to routine surveillance data? Think about seasonal patterns, long-term trends, or other cyclical behaviours that might influence case reporting patterns.\n\nThis session focused on the role of the generative process in nowcasting. This is an area of active research but (Lison et al. 2024) gives a good overview of the current state of the art.\nThe epinowcast package implements a more complex version of the model we have used here. It is designed to be highly flexible and so can be used to model a wide range of different datasets.",
+    "crumbs": [
+      "Nowcasting with an unknown reporting delay"
+    ]
+  },
+  {
+    "objectID": "sessions/joint-nowcasting.html#key-concepts-from-this-session",
+    "href": "sessions/joint-nowcasting.html#key-concepts-from-this-session",
+    "title": "Nowcasting with an unknown reporting delay",
+    "section": "Key concepts from this session",
+    "text": "Key concepts from this session\nJoint estimation: Rather than estimating delay distributions separately and then nowcasting, we can jointly estimate both the delay distribution and the underlying case counts from reporting triangle data. This approach:\n\nProperly accounts for uncertainty in delay estimates\nAvoids error propagation between models\nProvides more accurate uncertainty quantification\n\nThe reporting triangle: A three-dimensional data structure (onset day × reporting day × counts) that contains information about both delays and final case counts, enabling joint estimation.\nGenerative modelling: By explicitly modelling the data generating process (from infections → onsets → reports), we can create more robust nowcasts that account for epidemic dynamics.",
+    "crumbs": [
+      "Nowcasting with an unknown reporting delay"
+    ]
+  },
+  {
+    "objectID": "sessions/joint-nowcasting.html#bringing-it-all-together",
+    "href": "sessions/joint-nowcasting.html#bringing-it-all-together",
+    "title": "Nowcasting with an unknown reporting delay",
+    "section": "Bringing it all together",
+    "text": "Bringing it all together\nAcross this course we’ve seen a progression from basic concepts to sophisticated joint models:\n\nSession 1: \\(R_t\\) estimation using the renewal equation - understanding epidemic dynamics\nSession 2: Simple nowcasting - correcting for right-truncation in surveillance data\n\nSession 3: Joint nowcasting - simultaneous estimation of delays, nowcasts, and reproduction numbers\n\nThe final model we explored demonstrates how these concepts work together to provide real-time epidemic assessment whilst avoiding common biases like spurious declining trends.",
+    "crumbs": [
+      "Nowcasting with an unknown reporting delay"
+    ]
+  },
+  {
+    "objectID": "sessions/joint-nowcasting.html#real-world-considerations",
+    "href": "sessions/joint-nowcasting.html#real-world-considerations",
+    "title": "Nowcasting with an unknown reporting delay",
+    "section": "Real-world considerations",
+    "text": "Real-world considerations\nIn practice, you’ll need to consider: - Time-varying delay distributions - Reporting patterns that vary by demographics or geography - Seasonal patterns in routine surveillance - Computational trade-offs between model complexity and timeliness\nThe methods we’ve covered provide a foundation for tackling these challenges in real outbreak response or routine surveillance settings.\n\n\nLison, Adrian, Sam Abbott, Jana Huisman, and Tanja Stadler. 2024. “Generative Bayesian Modeling to Nowcast the Effective Reproduction Number from Line List Data with Missing Symptom Onset Dates.” PLOS Computational Biology 20 (4): e1012021. https://doi.org/10.1371/journal.pcbi.1012021.",
+    "crumbs": [
+      "Nowcasting with an unknown reporting delay"
+    ]
+  },
+  {
+    "objectID": "sessions/slides/introduction-to-nowcasting.html#your-turn",
+    "href": "sessions/slides/introduction-to-nowcasting.html#your-turn",
+    "title": "Introduction to nowcasting",
+    "section": " Your Turn",
+    "text": "Your Turn\n\nPerform nowcast with a known reporting delay distribution\nPerform a nowcast using a more realistic data generating process\nExplore the impact of getting the delay distribution wrong"
+  }
+]
