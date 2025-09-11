@@ -26,14 +26,15 @@ Tuesday: 09.30-10.30
 
 ## Session 2: Nowcasting concepts
 
-Tuesday: 11.00-11.45
+Tuesday: 11.00-11.30
 
 -   [Introduction](../sessions/slides/introduction-to-nowcasting): nowcasting as a right-truncation problem (10 mins)
--   [Practice](../sessions/nowcasting): simulating and basic nowcasting (35 mins)
+-   [Practice](../sessions/nowcasting): simulating and basic nowcasting (20 mins)
 
 ## Session 3: Nowcasting with an unknown reporting delay
 
-Tuesday: 11.45-12.30
+Tuesday: 11.30-12.30
 
 -   [Introduction](../sessions/slides/introduction-to-joint-estimation-of-nowcasting-and-reporting-delays): joint estimation of delays and nowcasts (10 mins)
--   [Practice](../sessions/joint-nowcasting): joint estimation of delays and nowcasts (35 mins)
+-   [Practice](../sessions/joint-nowcasting): joint estimation of delays and nowcasts (40 mins)
+-   [Wrap up](../sessions/joint-nowcasting): consolidating key concepts (10 mins)

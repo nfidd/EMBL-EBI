@@ -6,9 +6,9 @@ bibliography: ../nfidd.bib
 
 # Introduction
 
-In the last session we used the idea of convolutions as a way to interpret individual time delays at a population level.
-In that session, we linked symptom onsets back to infections.
-Now we want to link infections themselves together over time, knowing that current infections were infected by past infections.
+In epidemiology, we need to understand how infections spread through a population over time.
+Current infections are caused by past infections, and this transmission process forms the foundation of epidemic dynamics.
+We want to link infections themselves together over time, knowing that current infections were infected by past infections.
 Correctly capturing this transmission process is crucial to modelling infections in the present and future.
 
 ## Slides

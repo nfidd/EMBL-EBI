@@ -80,7 +80,7 @@ This builds on the data simulation approach we used in the concepts session, but
 ## Extending our data simulation approach
 
 Recall from the [nowcasting concepts session](sessions/nowcasting) that we simulated individual reporting delays and then aggregated them. 
-Now we'll simulate the same process but at the population level with observation error - for the same reasons we made this change in the [convolutions session](sessions/using-delay-distributions-to-model-the-data-generating-process-of-an-epidemic).
+Now we'll simulate the same process but at the population level with observation error. This approach allows us to properly model uncertainty whilst capturing the generative process of epidemic data.
 
 First, let's generate our simulated onset dataset as before:
 
@@ -480,12 +480,41 @@ Think about seasonal patterns, long-term trends, or other cyclical behaviours th
 - This session focused on the role of the generative process in nowcasting. This is an area of active research but [@lisonGenerativeBayesianModeling2024] gives a good overview of the current state of the art.
 - The [`epinowcast`](https://package.epinowcast.org/) package implements a more complex version of the model we have used here. It is designed to be highly flexible and so can be used to model a wide range of different datasets.
 
-# Wrap up
+# Wrap up (10 minutes)
 
-The learning objectives for this session were:
+Let's take a few minutes to consolidate what we've learnt in this session and across the course.
 
-- Awareness of the breadth of methods to perform nowcasting
-- $R_t$ estimation as a nowcasting problem
+## Key concepts from this session
+
+**Joint estimation**: Rather than estimating delay distributions separately and then nowcasting, we can jointly estimate both the delay distribution and the underlying case counts from reporting triangle data. This approach:
+
+- Properly accounts for uncertainty in delay estimates
+- Avoids error propagation between models
+- Provides more accurate uncertainty quantification
+
+**The reporting triangle**: A three-dimensional data structure (onset day × reporting day × counts) that contains information about both delays and final case counts, enabling joint estimation.
+
+**Generative modelling**: By explicitly modelling the data generating process (from infections → onsets → reports), we can create more robust nowcasts that account for epidemic dynamics.
+
+## Bringing it all together
+
+Across this course we've seen a progression from basic concepts to sophisticated joint models:
+
+1. **Session 1**: $R_t$ estimation using the renewal equation - understanding epidemic dynamics
+2. **Session 2**: Simple nowcasting - correcting for right-truncation in surveillance data  
+3. **Session 3**: Joint nowcasting - simultaneous estimation of delays, nowcasts, and reproduction numbers
+
+The final model we explored demonstrates how these concepts work together to provide real-time epidemic assessment whilst avoiding common biases like spurious declining trends.
+
+## Real-world considerations
+
+In practice, you'll need to consider:
+- Time-varying delay distributions
+- Reporting patterns that vary by demographics or geography
+- Seasonal patterns in routine surveillance
+- Computational trade-offs between model complexity and timeliness
+
+The methods we've covered provide a foundation for tackling these challenges in real outbreak response or routine surveillance settings.
 
 ::: {#refs}
 :::

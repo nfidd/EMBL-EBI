@@ -15,7 +15,7 @@ execute:
 set.seed(123)
 ```
 
-## Convolution session {.smaller}
+## Independent infections model {.smaller}
 
 ```{stan, file = system.file("stan", "estimate-infections.stan", package = "nfidd"), eval = FALSE, output.var = "mod"}
 #| code-line-numbers: "|23"
@@ -28,10 +28,10 @@ Is this reasonable?
 
 ## What if we convolve infections with infections?
 
-We can extend the convolution concept from the last session:
+We can use the concept of a convolution to link infections over time:
 
-- **Previous session:** infections → symptoms (via incubation period)
-- **This session:** infections → infections (via generation time)
+- **Key insight:** infections → infections (via generation time)
+- This captures the fundamental transmission process in epidemics
 
 ## Generation time: infection to infection
 

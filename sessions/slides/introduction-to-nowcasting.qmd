@@ -43,7 +43,7 @@ These patterns arise because:
 
 ### Nowcasting as right truncation
 
-Remember from [biases in delay estimation](../biases-in-delay-distributions):
+A key concept in understanding nowcasting:
 
 **Right truncation**
 
