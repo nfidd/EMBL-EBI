@@ -498,7 +498,7 @@ Let's take a few minutes to consolidate what we've learnt in this session and ac
 
 ## Bringing it all together
 
-Across this course we've seen a progression from basic concepts to sophisticated joint models:
+Across this course we've seen a progression from basic concepts to joint models:
 
 1. **Session 1**: $R_t$ estimation using the renewal equation - understanding epidemic dynamics
 2. **Session 2**: Simple nowcasting - correcting for right-truncation in surveillance data  
@@ -515,6 +515,8 @@ In practice, you'll need to consider:
 - Computational trade-offs between model complexity and timeliness
 
 The methods we've covered provide a foundation for tackling these challenges in real outbreak response or routine surveillance settings.
+
+## References
 
 ::: {#refs}
 :::
