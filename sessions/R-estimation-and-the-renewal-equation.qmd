@@ -122,9 +122,7 @@ renewal
 ## Take 2 minutes
 
 Try to understand the `renewal()` function above.
-This follows the same mathematical convolution pattern where we're combining two time series - the infections and the generation time distribution.
-How are they similar?
-Can you explain the key differences between the two?
+This follows a mathematical convolution pattern where we're combining two time series - the infections and the generation time distribution.
 Try calling the function with a few different probability distributions and parameters.
 What kind of behaviours do you see depending on the values you put in?
 :::
@@ -162,7 +160,7 @@ gen_time_pmf <- gen_time_pmf[-1] ## remove first element
 gen_time_pmf <- gen_time_pmf / sum(gen_time_pmf) ## renormalise
 ```
 
-As always we first load the stan model and spend some time trying to understand it.
+We first load the stan model and spend some time trying to understand it.
 
 ```{r stan_estimate_r}
 r_mod <- nfidd_cmdstan_model("estimate-r")
@@ -173,7 +171,7 @@ r_mod
 ## Take 2 minutes
 
 Familiarise yourself with the model above.
-Again there is a `functions` block at the beginning of the model (lines 1-3), where we load a function called `renewal()` (line 2) from a file of the same name which can be found in the subdirectory `functions` of the `stan` directory or [viewed on the github repo](https://github.com/nfidd/nfidd/blob/main/inst/stan/functions/renewal.stan).
+There is a `functions` block at the beginning of the model (lines 1-3), where we load a function called `renewal()` (line 2) from a file of the same name which can be found in the subdirectory `functions` of the `stan` directory or [viewed on the github repo](https://github.com/nfidd/nfidd/blob/main/inst/stan/functions/renewal.stan).
 The functions correspond exactly to our earlier **R** function of the same name.
 Later, this function is called in the `model` block, to generate the time series of infections using the discretised renewal model (line 19).
 Which line defines priors, and which the likelihood?
